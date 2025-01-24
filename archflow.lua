@@ -82,4 +82,9 @@ function M.generate_feature()
   print("Feature " .. feature_name .. " generated with " .. architecture .. " and " .. state_management .. ".")
 end
 
+function M.setup()
+  -- Expose the generate_feature function globally for lazy.nvim usage
+  vim.keymap.set("n", "<leader>af", M.generate_feature, { desc = "Generate Flutter feature" })
+end
+
 return M
