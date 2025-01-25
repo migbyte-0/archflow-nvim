@@ -20,28 +20,26 @@ local function generate_mvc_with_riverpod_files(feature_path, feature_name)
   local provider_content = [[
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum AuthState { initial, loading, success, failure }
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[State {
+  final String message;
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[State({this.message = ''});
 
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Provider extends StateNotifier<AuthState> {
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[Provider() : super(AuthState.initial);
-
-  Future<void> login(String username, String password) async {
-    state = AuthState.loading;
-    try {
-      // Simulate a network call
-      await Future.delayed(const Duration(seconds: 2));
-      if (username == "user" && password == "password") {
-        state = AuthState.success;
-      } else {
-        state = AuthState.failure;
-      }
-    } catch (e) {
-      state = AuthState.failure;
-    }
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({String? message}) {
+    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
+      message: message ?? this.message,
+    );
   }
 }
 
-final authProvider = StateNotifierProvider<]] .. feature_name:gsub("^%l", string.upper) .. [[Provider, AuthState>(
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Provider extends StateNotifier<]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[Provider() : super(]] .. feature_name:gsub("^%l", string.upper) .. [[State());
+
+  void updateMessage(String newMessage) {
+    state = state.copyWith(message: newMessage);
+  }
+}
+
+final ]] .. feature_name .. [[Provider = StateNotifierProvider<]] .. feature_name:gsub("^%l", string.upper) .. [[Provider, ]] .. feature_name:gsub("^%l", string.upper) .. [[State>(
   (ref) => ]] .. feature_name:gsub("^%l", string.upper) .. [[Provider(),
 );
 ]]
@@ -68,30 +66,27 @@ class ]] .. feature_name:gsub("^%l", string.upper) .. [[View extends ConsumerWid
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+    final state = ref.watch(]] .. feature_name .. [[Provider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(']] .. feature_name:gsub("^%l", string.upper) .. [[ View'),
       ),
-      body: Center(
-        child: authState == AuthState.loading
-            ? const CircularProgressIndicator()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (authState == AuthState.failure)
-                    const Text('Login Failed', style: TextStyle(color: Colors.red)),
-                  if (authState == AuthState.success)
-                    const Text('Login Successful', style: TextStyle(color: Colors.green)),
-                  ElevatedButton(
-                    onPressed: () {
-                      ref.read(authProvider.notifier).login("user", "password");
-                    },
-                    child: const Text('Login'),
-                  ),
-                ],
-              ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (state.message.isNotEmpty)
+            Text(
+              state.message,
+              style: const TextStyle(fontSize: 24, color: Colors.blue),
+            ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(]] .. feature_name .. [[Provider.notifier).updateMessage('Hello from Riverpod!');
+            },
+            child: const Text('Update Message'),
+          ),
+        ],
       ),
     );
   }
