@@ -1,7 +1,7 @@
 # ArchFlow.nvim
 
 **ArchFlow.nvim** is a Neovim plugin designed to simplify and accelerate Flutter development by automating the creation of architecture-based feature structures. The plugin supports popular design patterns and state management libraries.
-
+- [ArchFlow.nvim](https://github.com/migbyte-0/archflow-nvim) - A plugin that auto-generates Flutter folder structures and boilerplate for multiple architectures (MVC, MVVM, Clean Architecture, etc.).
 ---
 
 ## Features
