@@ -5,6 +5,15 @@
 local M = {}
 
 --------------------------------------------------------------------------------
+-- Optional setup function for plugin initialization or user configuration
+--------------------------------------------------------------------------------
+function M.setup()
+    -- You can put any plugin-wide initialization or user config defaults here.
+    -- For now, we'll just provide a minimal example that prints a message.
+    print("[ArchFlow] generate_pattern.lua loaded successfully.")
+end
+
+--------------------------------------------------------------------------------
 -- Prompt the user for a design pattern/architecture and feature name.
 --------------------------------------------------------------------------------
 function M.prompt_pattern_and_feature()
