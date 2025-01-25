@@ -14,144 +14,189 @@ local function create_file(path, content)
   end
 end
 
--- Boilerplate for Riverpod
-local function generate_mvc_with_riverpod_files(feature_path, feature_name)
-  local provider_file = feature_path .. "/controller/" .. feature_name .. "_provider.dart"
-  local provider_content = [[
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[State {
-  final String message;
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[State({this.message = ''});
-
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({String? message}) {
-    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
-      message: message ?? this.message,
-    );
-  }
-}
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier extends StateNotifier<]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier() : super(]] .. feature_name:gsub("^%l", string.upper) .. [[State());
-
-  void updateMessage(String newMessage) {
-    state = state.copyWith(message: newMessage);
-  }
-}
-
-final ]] .. feature_name .. [[Provider = StateNotifierProvider<]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier, ]] .. feature_name:gsub("^%l", string.upper) .. [[State>(
-  (ref) => ]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier(),
-);
-]]
-  create_file(provider_file, provider_content)
+local function generate_boilerplate(feature_path, feature_name, boilerplates)
+  for file_name, content in pairs(boilerplates) do
+    local file_path = feature_path .. "/" .. file_name
+    create_file(file_path, content)
+  end
 end
 
--- Boilerplate for GetX
-local function generate_mvc_with_getx_files(feature_path, feature_name)
-  local controller_file = feature_path .. "/controller/" .. feature_name .. "_controller.dart"
-  local controller_content = [[
-import 'package:get/get.dart';
+local function get_boilerplate(feature_name, state_management)
+  local class_name = feature_name:gsub("^%l", string.upper)
+  local boilerplates = {}
 
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Controller extends GetxController {
-  var message = ''.obs;
+  if state_management == "provider" then
+    boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
+import 'package:flutter/material.dart';
+
+class ]] .. class_name .. [[Provider extends ChangeNotifier {
+  String _message = 'Default Message';
+
+  String get message => _message;
+
+  void updateMessage(String newMessage) {
+    _message = newMessage;
+    notifyListeners();
+  }
+}
+]]
+  elseif state_management == "bloc" then
+    boilerplates["controller/" .. feature_name .. "_bloc.dart"] = [[
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+
+part ']] .. feature_name .. [[_event.dart';
+part ']] .. feature_name .. [[_state.dart';
+
+class ]] .. class_name .. [[Bloc extends Bloc<]] .. class_name .. [[Event, ]] .. class_name .. [[State> {
+  ]] .. class_name .. [[Bloc() : super(]] .. class_name .. [[Initial());
 
   @override
-  void onInit() {
-    super.onInit();
+  Stream<]] .. class_name .. [[State> mapEventToState(]] .. class_name .. [[Event event) async* {
+    // Add logic here
   }
+}
+]]
+
+    boilerplates["controller/" .. feature_name .. "_event.dart"] = [[
+part of ']] .. feature_name .. [[_bloc.dart';
+
+abstract class ]] .. class_name .. [[Event extends Equatable {
+  const ]] .. class_name .. [[Event();
+
+  @override
+  List<Object> get props => [];
+}
+
+class ]] .. class_name .. [[Started extends ]] .. class_name .. [[Event {}
+]]
+
+    boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
+part of ']] .. feature_name .. [[_bloc.dart';
+
+abstract class ]] .. class_name .. [[State extends Equatable {
+  const ]] .. class_name .. [[State();
+
+  @override
+  List<Object> get props => [];
+}
+
+class ]] .. class_name .. [[Initial extends ]] .. class_name .. [[State {}
+]]
+  elseif state_management == "cubit" then
+    boilerplates["controller/" .. feature_name .. "_cubit.dart"] = [[
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+
+part ']] .. feature_name .. [[_state.dart';
+
+class ]] .. class_name .. [[Cubit extends Cubit<]] .. class_name .. [[State> {
+  ]] .. class_name .. [[Cubit() : super(]] .. class_name .. [[Initial());
+
+  void updateMessage(String message) {
+    emit(]] .. class_name .. [[Updated(message));
+  }
+}
+]]
+
+    boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
+part of ']] .. feature_name .. [[_cubit.dart';
+
+abstract class ]] .. class_name .. [[State extends Equatable {
+  const ]] .. class_name .. [[State();
+
+  @override
+  List<Object> get props => [];
+}
+
+class ]] .. class_name .. [[Initial extends ]] .. class_name .. [[State {}
+
+class ]] .. class_name .. [[Updated extends ]] .. class_name .. [[State {
+  final String message;
+
+  const ]] .. class_name .. [[Updated(this.message);
+
+  @override
+  List<Object> get props => [message];
+}
+]]
+  elseif state_management == "riverpod" then
+    boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class ]] .. class_name .. [[Notifier extends StateNotifier<String> {
+  ]] .. class_name .. [[Notifier() : super('Default Message');
+
+  void updateMessage(String newMessage) {
+    state = newMessage;
+  }
+}
+
+final ]] .. feature_name .. [[Provider = StateNotifierProvider<]] .. class_name .. [[Notifier, String>(
+  (ref) => ]] .. class_name .. [[Notifier(),
+);
+]]
+  elseif state_management == "getx" then
+    boilerplates["controller/" .. feature_name .. "_controller.dart"] = [[
+import 'package:get/get.dart';
+
+class ]] .. class_name .. [[Controller extends GetxController {
+  var message = 'Default Message'.obs;
 
   void updateMessage(String newMessage) {
     message.value = newMessage;
   }
 }
 ]]
-  create_file(controller_file, controller_content)
-end
+  end
 
--- Generic MVC Files
-local function generate_mvc_files(feature_path, feature_name, state_management)
-  local model_file = feature_path .. "/model/" .. feature_name .. "_model.dart"
-  local model_content = [[
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Model {
-  // Add model properties here
+  boilerplates["model/" .. feature_name .. "_model.dart"] = [[
+class ]] .. class_name .. [[Model {
+  // Add your model properties here
 }
 ]]
-  create_file(model_file, model_content)
 
-  local view_file = feature_path .. "/view/" .. feature_name .. "_view.dart"
-  local view_content = [[
+  boilerplates["view/" .. feature_name .. "_view.dart"] = [[
 import 'package:flutter/material.dart';
 
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[View extends StatelessWidget {
-  const ]] .. feature_name:gsub("^%l", string.upper) .. [[View({Key? key}) : super(key: key);
+class ]] .. class_name .. [[View extends StatelessWidget {
+  const ]] .. class_name .. [[View({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(']] .. feature_name:gsub("^%l", string.upper) .. [[ View'),
+        title: const Text(']] .. class_name .. [[ View'),
       ),
       body: Center(
-        child: const Text('Welcome to ]] .. feature_name:gsub("^%l", string.upper) .. [[ View'),
+        child: const Text('Welcome to ]] .. class_name .. [[ View'),
       ),
     );
   }
 }
 ]]
-  create_file(view_file, view_content)
 
-  -- Generate State Management Files
-  if state_management == "riverpod" then
-    generate_mvc_with_riverpod_files(feature_path, feature_name)
-  elseif state_management == "getx" then
-    generate_mvc_with_getx_files(feature_path, feature_name)
-  end
+  return boilerplates
 end
 
--- Boilerplate for MVVM
-local function generate_mvvm_files(feature_path, feature_name)
-  local model_file = feature_path .. "/model/" .. feature_name .. "_model.dart"
-  local view_file = feature_path .. "/view/" .. feature_name .. "_view.dart"
-  local viewmodel_file = feature_path .. "/viewmodel/" .. feature_name .. "_viewmodel.dart"
-
-  create_file(model_file, "// Model file for " .. feature_name)
-  create_file(view_file, "// View file for " .. feature_name)
-  create_file(viewmodel_file, "// ViewModel file for " .. feature_name)
-end
-
--- Boilerplate for Clean Architecture
-local function generate_clean_architecture_files(feature_path, feature_name)
-  create_file(feature_path .. "/data/models/" .. feature_name .. "_model.dart", "// Data Model for " .. feature_name)
-  create_file(feature_path .. "/domain/entities/" .. feature_name .. "_entity.dart", "// Domain Entity for " .. feature_name)
-  create_file(feature_path .. "/presentation/widgets/" .. feature_name .. "_widget.dart", "// Presentation Widget for " .. feature_name)
-end
-
--- Generate Architecture
 local function generate_architecture_structure(base_path, feature_name, architecture, state_management)
   local feature_path = base_path .. "/lib/features/" .. feature_name
   create_directory(feature_path)
 
-  if architecture == "mvc" then
-    create_directory(feature_path .. "/controller")
-    create_directory(feature_path .. "/model")
-    create_directory(feature_path .. "/view")
-    generate_mvc_files(feature_path, feature_name, state_management)
+  local directories = {
+    mvc = { "model", "view", "controller" },
+    mvvm = { "model", "view", "viewmodel" },
+    clean = { "data/models", "domain/entities", "presentation/widgets" },
+  }
 
-  elseif architecture == "mvvm" then
-    create_directory(feature_path .. "/model")
-    create_directory(feature_path .. "/view")
-    create_directory(feature_path .. "/viewmodel")
-    generate_mvvm_files(feature_path, feature_name)
-
-  elseif architecture == "clean" then
-    create_directory(feature_path .. "/data/models")
-    create_directory(feature_path .. "/domain/entities")
-    create_directory(feature_path .. "/presentation/widgets")
-    generate_clean_architecture_files(feature_path, feature_name)
+  for _, dir in ipairs(directories[architecture]) do
+    create_directory(feature_path .. "/" .. dir)
   end
+
+  local boilerplates = get_boilerplate(feature_name, state_management)
+  generate_boilerplate(feature_path, feature_name, boilerplates)
 end
 
--- Generate Feature
 function M.generate_feature()
   local base_path = vim.fn.getcwd()
 
@@ -166,7 +211,7 @@ function M.generate_feature()
   local state_choice = vim.fn.input("Select state management (p: provider, b: bloc, r: riverpod, g: getx, c: cubit): ")
   local state_map = { p = "provider", b = "bloc", r = "riverpod", g = "getx", c = "cubit" }
   local state_management = state_map[state_choice]
-  if not state_management and architecture == "mvc" then
+  if not state_management then
     print("Invalid state management selection.")
     return
   end
