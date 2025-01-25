@@ -20,7 +20,6 @@ local function generate_mvc_with_bloc_files(feature_path, feature_name)
   local bloc_content = [[
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 
 part ']] .. feature_name .. [[_event.dart';
 part ']] .. feature_name .. [[_state.dart';
@@ -42,7 +41,6 @@ class ]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc extends Bloc<]] .. 
   local event_content = [[
 part of ']] .. feature_name .. [[_bloc.dart';
 
-@immutable
 abstract class ]] .. feature_name:gsub("^%l", string.upper) .. [[Event extends Equatable {
   const ]] .. feature_name:gsub("^%l", string.upper) .. [[Event();
 
@@ -85,45 +83,58 @@ class ]] .. feature_name:gsub("^%l", string.upper) .. [[State extends Equatable 
 }
 ]]
   create_file(state_file, state_content)
+end
 
-  -- Model file
-  local model_file = feature_path .. "/model/" .. feature_name .. "_model.dart"
-  local model_content = [[
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Model {
-  // Add model properties here
-}
-]]
-  create_file(model_file, model_content)
+local function generate_mvc_with_cubit_files(feature_path, feature_name)
+  -- Cubit files
+  local cubit_file = feature_path .. "/controller/" .. feature_name .. "_cubit.dart"
+  local cubit_content = [[
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 
-  -- View file
-  local view_file = feature_path .. "/view/" .. feature_name .. "_view.dart"
-  local view_content = [[
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../controller/]] .. feature_name .. [[_bloc.dart';
+part ']] .. feature_name .. [[_state.dart';
 
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[View extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(']] .. feature_name:gsub("^%l", string.upper) .. [[View'),
-      ),
-      body: BlocProvider(
-        create: (_) => ]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc(),
-        child: BlocBuilder<]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc, ]] .. feature_name:gsub("^%l", string.upper) .. [[State>(
-          builder: (context, state) {
-            return Center(
-              child: Text(state.message),
-            );
-          },
-        ),
-      ),
-    );
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Cubit extends Cubit<]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[Cubit() : super(const ]] .. feature_name:gsub("^%l", string.upper) .. [[State());
+
+  void exampleFunction() {
+    emit(state.copyWith(message: "Example function called"));
   }
 }
 ]]
-  create_file(view_file, view_content)
+  create_file(cubit_file, cubit_content)
+
+  -- State file
+  local state_file = feature_path .. "/controller/" .. feature_name .. "_state.dart"
+  local state_content = [[
+part of ']] .. feature_name .. [[_cubit.dart';
+
+enum ]] .. feature_name:gsub("^%l", string.upper) .. [[Status { initial, loading, success, error }
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[State extends Equatable {
+  const ]] .. feature_name:gsub("^%l", string.upper) .. [[State({
+    this.status = ]] .. feature_name:gsub("^%l", string.upper) .. [[Status.initial,
+    this.message = '',
+  });
+
+  final ]] .. feature_name:gsub("^%l", string.upper) .. [[Status status;
+  final String message;
+
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({
+    ]] .. feature_name:gsub("^%l", string.upper) .. [[Status? status,
+    String? message,
+  }) {
+    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
+      status: status ?? this.status,
+      message: message ?? this.message,
+    );
+  }
+
+  @override
+  List<Object?> get props => [status, message];
+}
+]]
+  create_file(state_file, state_content)
 end
 
 local function generate_architecture_structure(base_path, feature_name, architecture, state_management)
@@ -138,6 +149,8 @@ local function generate_architecture_structure(base_path, feature_name, architec
 
     if state_management == "bloc" then
       generate_mvc_with_bloc_files(feature_path, feature_name)
+    elseif state_management == "cubit" then
+      generate_mvc_with_cubit_files(feature_path, feature_name)
     end
   end
 end
@@ -155,8 +168,8 @@ function M.generate_feature()
   end
 
   -- Prompt for state management
-  local state_choice = vim.fn.input("Select state management (p: provider, b: bloc, r: riverpod, g: getx): ")
-  local state_map = { p = "provider", b = "bloc", r = "riverpod", g = "getx" }
+  local state_choice = vim.fn.input("Select state management (p: provider, b: bloc, r: riverpod, g: getx, c: cubit): ")
+  local state_map = { p = "provider", b = "bloc", r = "riverpod", g = "getx", c = "cubit" }
   local state_management = state_map[state_choice]
   if not state_management then
     print("Invalid state management selection.")
