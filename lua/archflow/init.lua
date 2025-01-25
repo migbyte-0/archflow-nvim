@@ -14,56 +14,24 @@ local function create_file(path, content)
   end
 end
 
-local function generate_mvc_with_cubit_files(feature_path, feature_name)
-  -- Cubit files
-  local cubit_file = feature_path .. "/controller/" .. feature_name .. "_cubit.dart"
-  local cubit_content = [[
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
+local function generate_mvc_with_provider_files(feature_path, feature_name)
+  -- Provider file
+  local provider_file = feature_path .. "/controller/" .. feature_name .. "_provider.dart"
+  local provider_content = [[
+import 'package:flutter/material.dart';
 
-part ']] .. feature_name .. [[_state.dart';
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Provider extends ChangeNotifier {
+  String _name = 'Default Name';
 
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Cubit extends Cubit<]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[Cubit() : super(const ]] .. feature_name:gsub("^%l", string.upper) .. [[State());
+  String get name => _name;
 
-  void exampleFunction() {
-    emit(state.copyWith(message: "Example function called"));
+  set name(String newName) {
+    _name = newName;
+    notifyListeners();
   }
 }
 ]]
-  create_file(cubit_file, cubit_content)
-
-  -- State file
-  local state_file = feature_path .. "/controller/" .. feature_name .. "_state.dart"
-  local state_content = [[
-part of ']] .. feature_name .. [[_cubit.dart';
-
-enum ]] .. feature_name:gsub("^%l", string.upper) .. [[Status { initial, loading, success, error }
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[State extends Equatable {
-  const ]] .. feature_name:gsub("^%l", string.upper) .. [[State({
-    this.status = ]] .. feature_name:gsub("^%l", string.upper) .. [[Status.initial,
-    this.message = '',
-  });
-
-  final ]] .. feature_name:gsub("^%l", string.upper) .. [[Status status;
-  final String message;
-
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({
-    ]] .. feature_name:gsub("^%l", string.upper) .. [[Status? status,
-    String? message,
-  }) {
-    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
-      status: status ?? this.status,
-      message: message ?? this.message,
-    );
-  }
-
-  @override
-  List<Object?> get props => [status, message];
-}
-]]
-  create_file(state_file, state_content)
+  create_file(provider_file, provider_content)
 
   -- Model file
   local model_file = feature_path .. "/model/" .. feature_name .. "_model.dart"
@@ -78,18 +46,34 @@ class ]] .. feature_name:gsub("^%l", string.upper) .. [[Model {
   local view_file = feature_path .. "/view/" .. feature_name .. "_view.dart"
   local view_content = [[
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../controller/]] .. feature_name .. [[_provider.dart';
 
 class ]] .. feature_name:gsub("^%l", string.upper) .. [[View extends StatelessWidget {
   const ]] .. feature_name:gsub("^%l", string.upper) .. [[View({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<]] .. feature_name:gsub("^%l", string.upper) .. [[Provider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(']] .. feature_name:gsub("^%l", string.upper) .. [[ View'),
       ),
-      body: Center(
-        child: Text('Welcome to ]] .. feature_name:gsub("^%l", string.upper) .. [[ View'),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Current Name: ${provider.name}',
+            style: const TextStyle(fontSize: 20),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.name = 'Updated Name';
+            },
+            child: const Text('Update Name'),
+          ),
+        ],
       ),
     );
   }
@@ -108,8 +92,8 @@ local function generate_architecture_structure(base_path, feature_name, architec
       create_directory(feature_path .. "/" .. dir)
     end
 
-    if state_management == "cubit" then
-      generate_mvc_with_cubit_files(feature_path, feature_name)
+    if state_management == "provider" then
+      generate_mvc_with_provider_files(feature_path, feature_name)
     end
   end
 end
