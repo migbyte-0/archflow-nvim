@@ -14,7 +14,61 @@ local function create_file(path, content)
   end
 end
 
--- Boilerplate for MVC
+-- Boilerplate for Riverpod
+local function generate_mvc_with_riverpod_files(feature_path, feature_name)
+  local provider_file = feature_path .. "/controller/" .. feature_name .. "_provider.dart"
+  local provider_content = [[
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[State {
+  final String message;
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[State({this.message = ''});
+
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({String? message}) {
+    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
+      message: message ?? this.message,
+    );
+  }
+}
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier extends StateNotifier<]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier() : super(]] .. feature_name:gsub("^%l", string.upper) .. [[State());
+
+  void updateMessage(String newMessage) {
+    state = state.copyWith(message: newMessage);
+  }
+}
+
+final ]] .. feature_name .. [[Provider = StateNotifierProvider<]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier, ]] .. feature_name:gsub("^%l", string.upper) .. [[State>(
+  (ref) => ]] .. feature_name:gsub("^%l", string.upper) .. [[Notifier(),
+);
+]]
+  create_file(provider_file, provider_content)
+end
+
+-- Boilerplate for GetX
+local function generate_mvc_with_getx_files(feature_path, feature_name)
+  local controller_file = feature_path .. "/controller/" .. feature_name .. "_controller.dart"
+  local controller_content = [[
+import 'package:get/get.dart';
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Controller extends GetxController {
+  var message = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
+
+  void updateMessage(String newMessage) {
+    message.value = newMessage;
+  }
+}
+]]
+  create_file(controller_file, controller_content)
+end
+
+-- Generic MVC Files
 local function generate_mvc_files(feature_path, feature_name, state_management)
   local model_file = feature_path .. "/model/" .. feature_name .. "_model.dart"
   local model_content = [[
@@ -47,123 +101,10 @@ class ]] .. feature_name:gsub("^%l", string.upper) .. [[View extends StatelessWi
   create_file(view_file, view_content)
 
   -- Generate State Management Files
-  if state_management == "provider" then
-    local provider_file = feature_path .. "/controller/" .. feature_name .. "_provider.dart"
-    local provider_content = [[
-import 'package:flutter/material.dart';
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Provider extends ChangeNotifier {
-  String _name = 'Default Name';
-
-  String get name => _name;
-
-  set name(String newName) {
-    _name = newName;
-    notifyListeners();
-  }
-}
-]]
-    create_file(provider_file, provider_content)
-
-  elseif state_management == "bloc" then
-    local bloc_file = feature_path .. "/controller/" .. feature_name .. "_bloc.dart"
-    local bloc_content = [[
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-
-part ']] .. feature_name .. [[_event.dart';
-part ']] .. feature_name .. [[_state.dart';
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc extends Bloc<]] .. feature_name:gsub("^%l", string.upper) .. [[Event, ]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc() : super(const ]] .. feature_name:gsub("^%l", string.upper) .. [[State()) {
-    on<ExampleEvent>(_mapExampleEventToState);
-  }
-
-  void _mapExampleEventToState(ExampleEvent event, Emitter<]] .. feature_name:gsub("^%l", string.upper) .. [[State> emit) {
-    emit(state.copyWith(message: "Handled ExampleEvent"));
-  }
-}
-]]
-    create_file(bloc_file, bloc_content)
-
-    local event_file = feature_path .. "/controller/" .. feature_name .. "_event.dart"
-    local event_content = [[
-part of ']] .. feature_name .. [[_bloc.dart';
-
-abstract class ]] .. feature_name:gsub("^%l", string.upper) .. [[Event extends Equatable {
-  const ]] .. feature_name:gsub("^%l", string.upper) .. [[Event();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class ExampleEvent extends ]] .. feature_name:gsub("^%l", string.upper) .. [[Event {}
-]]
-    create_file(event_file, event_content)
-
-    local state_file = feature_path .. "/controller/" .. feature_name .. "_state.dart"
-    local state_content = [[
-part of ']] .. feature_name .. [[_bloc.dart';
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[State extends Equatable {
-  const ]] .. feature_name:gsub("^%l", string.upper) .. [[State({
-    this.message = '',
-  });
-
-  final String message;
-
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({String? message}) {
-    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
-      message: message ?? this.message,
-    );
-  }
-
-  @override
-  List<Object?> get props => [message];
-}
-]]
-    create_file(state_file, state_content)
-
-  elseif state_management == "cubit" then
-    local cubit_file = feature_path .. "/controller/" .. feature_name .. "_cubit.dart"
-    local cubit_content = [[
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-
-part ']] .. feature_name .. [[_state.dart';
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Cubit extends Cubit<]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[Cubit() : super(const ]] .. feature_name:gsub("^%l", string.upper) .. [[State());
-
-  void exampleFunction() {
-    emit(state.copyWith(message: "Example function called"));
-  }
-}
-]]
-    create_file(cubit_file, cubit_content)
-
-    local state_file = feature_path .. "/controller/" .. feature_name .. "_state.dart"
-    local state_content = [[
-part of ']] .. feature_name .. [[_cubit.dart';
-
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[State extends Equatable {
-  const ]] .. feature_name:gsub("^%l", string.upper) .. [[State({
-    this.message = '',
-  });
-
-  final String message;
-
-  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({String? message}) {
-    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
-      message: message ?? this.message,
-    );
-  }
-
-  @override
-  List<Object?> get props => [message];
-}
-]]
-    create_file(state_file, state_content)
+  if state_management == "riverpod" then
+    generate_mvc_with_riverpod_files(feature_path, feature_name)
+  elseif state_management == "getx" then
+    generate_mvc_with_getx_files(feature_path, feature_name)
   end
 end
 
