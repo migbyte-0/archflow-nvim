@@ -14,37 +14,9 @@ local function create_file(path, content)
   end
 end
 
--- Helper to display a Telescope picker
-local function telescope_picker(prompt_text, choices)
-  local pickers = require("telescope.pickers")
-  local finders = require("telescope.finders")
-  local actions = require("telescope.actions")
-  local action_state = require("telescope.actions.state")
-
-  local result = nil
-
-  pickers.new({}, {
-    prompt_title = prompt_text,
-    finder = finders.new_table {
-      results = choices,
-    },
-    sorter = require("telescope.config").values.generic_sorter({}),
-    attach_mappings = function(_, map)
-      actions.select_default:replace(function()
-        actions.close(_)
-        result = action_state.get_selected_entry()[1]
-      end)
-      map("i", "<esc>", actions.close) -- Close picker with ESC
-      return true
-    end,
-  }):find()
-
-  -- Block until user makes a choice
-  vim.wait(1000, function()
-    return result ~= nil
-  end, 10)
-  
-  return result
+local function prompt_user(prompt_text, choices)
+  local choice = vim.fn.input(prompt_text .. " (" .. table.concat(choices, "/") .. "): ")
+  return choice
 end
 
 local function generate_architecture_structure(base_path, feature_name, architecture, state_management)
@@ -114,21 +86,25 @@ end
 function M.generate_feature()
   local base_path = vim.fn.getcwd()
 
-  -- Use Telescope picker for architecture
-  local architecture = telescope_picker("Select Architecture", { "mvc", "mvvm", "clean" })
+  -- Prompt for architecture
+  local architecture_choice = vim.fn.input("Select architecture (m: mvc, v: mvvm, c: clean): ")
+  local architecture_map = { m = "mvc", v = "mvvm", c = "clean" }
+  local architecture = architecture_map[architecture_choice]
   if not architecture then
-    print("No architecture selected.")
+    print("Invalid architecture selection.")
     return
   end
 
-  -- Use Telescope picker for state management
-  local state_management = telescope_picker("Select State Management", { "provider", "bloc", "riverpod", "getx" })
+  -- Prompt for state management
+  local state_choice = vim.fn.input("Select state management (p: provider, b: bloc, r: riverpod, g: getx): ")
+  local state_map = { p = "provider", b = "bloc", r = "riverpod", g = "getx" }
+  local state_management = state_map[state_choice]
   if not state_management then
-    print("No state management selected.")
+    print("Invalid state management selection.")
     return
   end
 
-  -- Use input for feature name
+  -- Prompt for feature name
   local feature_name = vim.fn.input("Enter feature name: ")
   if feature_name == "" then
     print("Feature name cannot be empty.")
