@@ -14,6 +14,69 @@ local function create_file(path, content)
   end
 end
 
+local function generate_mvc_with_getx_files(feature_path, feature_name)
+  -- Controller file
+  local controller_file = feature_path .. "/controller/" .. feature_name .. "_controller.dart"
+  local controller_content = [[
+import 'package:get/get.dart';
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Controller extends GetxController {
+  @override
+  void onInit() {
+    // Called when controller is created
+    super.onInit();
+  }
+
+  @override
+  void onReady() {
+    // Called after widget is rendered on screen
+    super.onReady();
+  }
+
+  @override
+  void onClose() {
+    // Called when controller is removed from memory
+    super.onClose();
+  }
+}
+]]
+  create_file(controller_file, controller_content)
+
+  -- Model file
+  local model_file = feature_path .. "/model/" .. feature_name .. "_model.dart"
+  local model_content = [[
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Model {
+  // Add model properties here
+}
+]]
+  create_file(model_file, model_content)
+
+  -- View file
+  local view_file = feature_path .. "/view/" .. feature_name .. "_view.dart"
+  local view_content = [[
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controller/]] .. feature_name .. [[_controller.dart';
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[View extends StatelessWidget {
+  final controller = Get.put(]] .. feature_name:gsub("^%l", string.upper) .. [[Controller());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(']] .. feature_name:gsub("^%l", string.upper) .. [[View'),
+      ),
+      body: Center(
+        child: Text('Hello from ]] .. feature_name:gsub("^%l", string.upper) .. [[View'),
+      ),
+    );
+  }
+}
+]]
+  create_file(view_file, view_content)
+end
+
 local function generate_architecture_structure(base_path, feature_name, architecture, state_management)
   local feature_path = base_path .. "/lib/features/" .. feature_name
   create_directory(feature_path)
@@ -24,17 +87,10 @@ local function generate_architecture_structure(base_path, feature_name, architec
       create_directory(feature_path .. "/" .. dir)
     end
 
-    -- Create files for MVC
-    create_file(feature_path .. "/model/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
-    create_file(feature_path .. "/view/" .. feature_name .. "_view.dart", "// View file for " .. feature_name)
-
-    -- Create controller file only once
+    -- Generate boilerplate files for MVC with GetX
     if state_management == "getx" then
-      create_file(feature_path .. "/controller/" .. feature_name .. "_controller.dart", "// GetX controller file for " .. feature_name)
-    else
-      create_file(feature_path .. "/controller/" .. feature_name .. "_controller.dart", "// Controller file for " .. feature_name)
+      generate_mvc_with_getx_files(feature_path, feature_name)
     end
-
   elseif architecture == "mvvm" then
     local mvvm_directories = { "model", "view", "viewmodel" }
     for _, dir in ipairs(mvvm_directories) do
@@ -45,7 +101,6 @@ local function generate_architecture_structure(base_path, feature_name, architec
     create_file(feature_path .. "/model/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
     create_file(feature_path .. "/view/" .. feature_name .. "_view.dart", "// View file for " .. feature_name)
     create_file(feature_path .. "/viewmodel/" .. feature_name .. "_viewmodel.dart", "// ViewModel file for " .. feature_name)
-
   elseif architecture == "clean" then
     local clean_directories = {
       "data/models",
@@ -78,11 +133,6 @@ local function generate_architecture_structure(base_path, feature_name, architec
       local riverpod_path = feature_path .. "/presentation/providers"
       create_directory(riverpod_path)
       create_file(riverpod_path .. "/" .. feature_name .. "_provider.dart", "// Riverpod provider file for " .. feature_name)
-
-    elseif state_management == "getx" then
-      local getx_path = feature_path .. "/presentation/controllers"
-      create_directory(getx_path)
-      create_file(getx_path .. "/" .. feature_name .. "_controller.dart", "// GetX controller file for " .. feature_name)
     end
   end
 end
