@@ -51,30 +51,64 @@ local function generate_architecture_structure(base_path, feature_name, architec
   local feature_path = base_path .. "/lib/features/" .. feature_name
   create_directory(feature_path)
 
-  local directories = {
-    "data", "domain", "presentation",
-  }
+  if architecture == "mvc" then
+    local mvc_directories = { "model", "view", "controller" }
+    for _, dir in ipairs(mvc_directories) do
+      create_directory(feature_path .. "/" .. dir)
+    end
 
-  for _, dir in ipairs(directories) do
-    create_directory(feature_path .. "/" .. dir)
+    -- Create files for MVC
+    create_file(feature_path .. "/model/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
+    create_file(feature_path .. "/view/" .. feature_name .. "_view.dart", "// View file for " .. feature_name)
+    create_file(feature_path .. "/controller/" .. feature_name .. "_controller.dart", "// Controller file for " .. feature_name)
+
+  elseif architecture == "mvvm" then
+    local mvvm_directories = { "model", "view", "viewmodel" }
+    for _, dir in ipairs(mvvm_directories) do
+      create_directory(feature_path .. "/" .. dir)
+    end
+
+    -- Create files for MVVM
+    create_file(feature_path .. "/model/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
+    create_file(feature_path .. "/view/" .. feature_name .. "_view.dart", "// View file for " .. feature_name)
+    create_file(feature_path .. "/viewmodel/" .. feature_name .. "_viewmodel.dart", "// ViewModel file for " .. feature_name)
+
+  elseif architecture == "clean" then
+    local clean_directories = {
+      "data/models",
+      "domain/entities",
+      "presentation/widgets",
+    }
+    for _, dir in ipairs(clean_directories) do
+      create_directory(feature_path .. "/" .. dir)
+    end
+
+    -- Create generic clean architecture files
+    create_file(feature_path .. "/data/models/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
+    create_file(feature_path .. "/domain/entities/" .. feature_name .. "_entity.dart", "// Entity file for " .. feature_name)
+    create_file(feature_path .. "/presentation/widgets/" .. feature_name .. "_widget.dart", "// Widget file for " .. feature_name)
   end
 
-  if architecture == "clean" then
-    create_directory(feature_path .. "/data/models")
-    create_directory(feature_path .. "/domain/entities")
-    create_directory(feature_path .. "/presentation/widgets")
-  end
-
-  local state_path = feature_path .. "/presentation/"
   if state_management == "bloc" then
-    state_path = state_path .. "blocs"
-  elseif state_management == "provider" then
-    state_path = state_path .. "providers"
-  end
-  create_directory(state_path)
+    local bloc_path = feature_path .. "/presentation/blocs"
+    create_directory(bloc_path)
+    create_file(bloc_path .. "/" .. feature_name .. "_bloc.dart", "// Bloc file for " .. feature_name)
 
-  create_file(state_path .. "/state.dart", "// State file for " .. feature_name)
-  create_file(state_path .. "/logic.dart", "// Logic file for " .. feature_name)
+  elseif state_management == "provider" then
+    local provider_path = feature_path .. "/presentation/providers"
+    create_directory(provider_path)
+    create_file(provider_path .. "/" .. feature_name .. "_provider.dart", "// Provider file for " .. feature_name)
+
+  elseif state_management == "riverpod" then
+    local riverpod_path = feature_path .. "/presentation/providers"
+    create_directory(riverpod_path)
+    create_file(riverpod_path .. "/" .. feature_name .. "_provider.dart", "// Riverpod provider file for " .. feature_name)
+
+  elseif state_management == "getx" then
+    local getx_path = feature_path .. "/presentation/controllers"
+    create_directory(getx_path)
+    create_file(getx_path .. "/" .. feature_name .. "_controller.dart", "// GetX controller file for " .. feature_name)
+  end
 end
 
 function M.generate_feature()
