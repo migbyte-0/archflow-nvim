@@ -14,11 +14,6 @@ local function create_file(path, content)
   end
 end
 
-local function prompt_user(prompt_text, choices)
-  local choice = vim.fn.input(prompt_text .. " (" .. table.concat(choices, "/") .. "): ")
-  return choice
-end
-
 local function generate_architecture_structure(base_path, feature_name, architecture, state_management)
   local feature_path = base_path .. "/lib/features/" .. feature_name
   create_directory(feature_path)
@@ -32,7 +27,13 @@ local function generate_architecture_structure(base_path, feature_name, architec
     -- Create files for MVC
     create_file(feature_path .. "/model/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
     create_file(feature_path .. "/view/" .. feature_name .. "_view.dart", "// View file for " .. feature_name)
-    create_file(feature_path .. "/controller/" .. feature_name .. "_controller.dart", "// Controller file for " .. feature_name)
+
+    -- Create controller file only once
+    if state_management == "getx" then
+      create_file(feature_path .. "/controller/" .. feature_name .. "_controller.dart", "// GetX controller file for " .. feature_name)
+    else
+      create_file(feature_path .. "/controller/" .. feature_name .. "_controller.dart", "// Controller file for " .. feature_name)
+    end
 
   elseif architecture == "mvvm" then
     local mvvm_directories = { "model", "view", "viewmodel" }
@@ -61,25 +62,28 @@ local function generate_architecture_structure(base_path, feature_name, architec
     create_file(feature_path .. "/presentation/widgets/" .. feature_name .. "_widget.dart", "// Widget file for " .. feature_name)
   end
 
-  if state_management == "bloc" then
-    local bloc_path = feature_path .. "/presentation/blocs"
-    create_directory(bloc_path)
-    create_file(bloc_path .. "/" .. feature_name .. "_bloc.dart", "// Bloc file for " .. feature_name)
+  -- Handle additional state management logic only for non-MVC architectures
+  if architecture ~= "mvc" then
+    if state_management == "bloc" then
+      local bloc_path = feature_path .. "/presentation/blocs"
+      create_directory(bloc_path)
+      create_file(bloc_path .. "/" .. feature_name .. "_bloc.dart", "// Bloc file for " .. feature_name)
 
-  elseif state_management == "provider" then
-    local provider_path = feature_path .. "/presentation/providers"
-    create_directory(provider_path)
-    create_file(provider_path .. "/" .. feature_name .. "_provider.dart", "// Provider file for " .. feature_name)
+    elseif state_management == "provider" then
+      local provider_path = feature_path .. "/presentation/providers"
+      create_directory(provider_path)
+      create_file(provider_path .. "/" .. feature_name .. "_provider.dart", "// Provider file for " .. feature_name)
 
-  elseif state_management == "riverpod" then
-    local riverpod_path = feature_path .. "/presentation/providers"
-    create_directory(riverpod_path)
-    create_file(riverpod_path .. "/" .. feature_name .. "_provider.dart", "// Riverpod provider file for " .. feature_name)
+    elseif state_management == "riverpod" then
+      local riverpod_path = feature_path .. "/presentation/providers"
+      create_directory(riverpod_path)
+      create_file(riverpod_path .. "/" .. feature_name .. "_provider.dart", "// Riverpod provider file for " .. feature_name)
 
-  elseif state_management == "getx" then
-    local getx_path = feature_path .. "/presentation/controllers"
-    create_directory(getx_path)
-    create_file(getx_path .. "/" .. feature_name .. "_controller.dart", "// GetX controller file for " .. feature_name)
+    elseif state_management == "getx" then
+      local getx_path = feature_path .. "/presentation/controllers"
+      create_directory(getx_path)
+      create_file(getx_path .. "/" .. feature_name .. "_controller.dart", "// GetX controller file for " .. feature_name)
+    end
   end
 end
 
