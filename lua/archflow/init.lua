@@ -21,12 +21,14 @@ local function generate_boilerplate(feature_path, feature_name, boilerplates)
   end
 end
 
-local function get_boilerplate(feature_name, state_management)
+local function get_boilerplate(feature_name, architecture, state_management)
   local class_name = feature_name:gsub("^%l", string.upper)
   local boilerplates = {}
 
-  if state_management == "provider" then
-    boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
+  if architecture == "mvc" then
+    -- Add MVC-specific boilerplates based on state management
+    if state_management == "provider" then
+      boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
 import 'package:flutter/material.dart';
 
 class ]] .. class_name .. [[Provider extends ChangeNotifier {
@@ -40,8 +42,8 @@ class ]] .. class_name .. [[Provider extends ChangeNotifier {
   }
 }
 ]]
-  elseif state_management == "bloc" then
-    boilerplates["controller/" .. feature_name .. "_bloc.dart"] = [[
+    elseif state_management == "bloc" then
+      boilerplates["controller/" .. feature_name .. "_bloc.dart"] = [[
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -58,7 +60,7 @@ class ]] .. class_name .. [[Bloc extends Bloc<]] .. class_name .. [[Event, ]] ..
 }
 ]]
 
-    boilerplates["controller/" .. feature_name .. "_event.dart"] = [[
+      boilerplates["controller/" .. feature_name .. "_event.dart"] = [[
 part of ']] .. feature_name .. [[_bloc.dart';
 
 abstract class ]] .. class_name .. [[Event extends Equatable {
@@ -71,20 +73,36 @@ abstract class ]] .. class_name .. [[Event extends Equatable {
 class ]] .. class_name .. [[Started extends ]] .. class_name .. [[Event {}
 ]]
 
-    boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
+      boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
 part of ']] .. feature_name .. [[_bloc.dart';
 
-abstract class ]] .. class_name .. [[State extends Equatable {
-  const ]] .. class_name .. [[State();
+enum ]] .. class_name .. [[Status { initial, loading, success, error }
+
+class ]] .. class_name .. [[State extends Equatable {
+  const ]] .. class_name .. [[State({
+    this.status = ]] .. class_name .. [[Status.initial,
+    this.message = '',
+  });
+
+  final ]] .. class_name .. [[Status status;
+  final String message;
+
+  ]] .. class_name .. [[State copyWith({
+    ]] .. class_name .. [[Status? status,
+    String? message,
+  }) {
+    return ]] .. class_name .. [[State(
+      status: status ?? this.status,
+      message: message ?? this.message,
+    );
+  }
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [status, message];
 }
-
-class ]] .. class_name .. [[Initial extends ]] .. class_name .. [[State {}
 ]]
-  elseif state_management == "cubit" then
-    boilerplates["controller/" .. feature_name .. "_cubit.dart"] = [[
+    elseif state_management == "cubit" then
+      boilerplates["controller/" .. feature_name .. "_cubit.dart"] = [[
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -99,14 +117,22 @@ class ]] .. class_name .. [[Cubit extends Cubit<]] .. class_name .. [[State> {
 }
 ]]
 
-    boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
+      boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
 part of ']] .. feature_name .. [[_cubit.dart';
 
-abstract class ]] .. class_name .. [[State extends Equatable {
-  const ]] .. class_name .. [[State();
+enum ]] .. class_name .. [[Status { initial, updated }
+
+class ]] .. class_name .. [[State extends Equatable {
+  const ]] .. class_name .. [[State({
+    this.status = ]] .. class_name .. [[Status.initial,
+    this.message = '',
+  });
+
+  final ]] .. class_name .. [[Status status;
+  final String message;
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [status, message];
 }
 
 class ]] .. class_name .. [[Initial extends ]] .. class_name .. [[State {}
@@ -114,14 +140,14 @@ class ]] .. class_name .. [[Initial extends ]] .. class_name .. [[State {}
 class ]] .. class_name .. [[Updated extends ]] .. class_name .. [[State {
   final String message;
 
-  const ]] .. class_name .. [[Updated(this.message);
+  ]] .. class_name .. [[Updated(this.message) : super(status: ]] .. class_name .. [[Status.updated, message: message);
 
   @override
   List<Object> get props => [message];
 }
 ]]
-  elseif state_management == "riverpod" then
-    boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
+    elseif state_management == "riverpod" then
+      boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ]] .. class_name .. [[Notifier extends StateNotifier<String> {
@@ -132,12 +158,10 @@ class ]] .. class_name .. [[Notifier extends StateNotifier<String> {
   }
 }
 
-final ]] .. feature_name .. [[Provider = StateNotifierProvider<]] .. class_name .. [[Notifier, String>(
-  (ref) => ]] .. class_name .. [[Notifier(),
-);
+final ]] .. feature_name .. [[Provider = StateNotifierProvider<]] .. class_name .. [[Notifier, String>((ref) => ]] .. class_name .. [[Notifier());
 ]]
-  elseif state_management == "getx" then
-    boilerplates["controller/" .. feature_name .. "_controller.dart"] = [[
+    elseif state_management == "getx" then
+      boilerplates["controller/" .. feature_name .. "_controller.dart"] = [[
 import 'package:get/get.dart';
 
 class ]] .. class_name .. [[Controller extends GetxController {
@@ -146,6 +170,14 @@ class ]] .. class_name .. [[Controller extends GetxController {
   void updateMessage(String newMessage) {
     message.value = newMessage;
   }
+}
+]]
+    end
+
+  elseif architecture == "mvvm" then
+    boilerplates["viewmodel/" .. feature_name .. "_viewmodel.dart"] = [[
+class ]] .. class_name .. [[ViewModel {
+  // Add your view model logic here
 }
 ]]
   end
@@ -186,22 +218,21 @@ local function generate_architecture_structure(base_path, feature_name, architec
   local directories = {
     mvc = { "model", "view", "controller" },
     mvvm = { "model", "view", "viewmodel" },
-    clean = { "data/models", "domain/entities", "presentation/widgets" },
   }
 
   for _, dir in ipairs(directories[architecture]) do
     create_directory(feature_path .. "/" .. dir)
   end
 
-  local boilerplates = get_boilerplate(feature_name, state_management)
+  local boilerplates = get_boilerplate(feature_name, architecture, state_management)
   generate_boilerplate(feature_path, feature_name, boilerplates)
 end
 
 function M.generate_feature()
   local base_path = vim.fn.getcwd()
 
-  local architecture_choice = vim.fn.input("Select architecture (m: mvc, v: mvvm, c: clean): ")
-  local architecture_map = { m = "mvc", v = "mvvm", c = "clean" }
+  local architecture_choice = vim.fn.input("Select architecture (m: mvc, v: mvvm): ")
+  local architecture_map = { m = "mvc", v = "mvvm" }
   local architecture = architecture_map[architecture_choice]
   if not architecture then
     print("Invalid architecture selection.")
