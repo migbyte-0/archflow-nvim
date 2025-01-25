@@ -14,33 +14,77 @@ local function create_file(path, content)
   end
 end
 
-local function generate_mvc_with_getx_files(feature_path, feature_name)
-  -- Controller file
-  local controller_file = feature_path .. "/controller/" .. feature_name .. "_controller.dart"
-  local controller_content = [[
-import 'package:get/get.dart';
+local function generate_mvc_with_bloc_files(feature_path, feature_name)
+  -- Bloc files
+  local bloc_file = feature_path .. "/controller/" .. feature_name .. "_bloc.dart"
+  local bloc_content = [[
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 
-class ]] .. feature_name:gsub("^%l", string.upper) .. [[Controller extends GetxController {
-  @override
-  void onInit() {
-    // Called when controller is created
-    super.onInit();
+part ']] .. feature_name .. [[_event.dart';
+part ']] .. feature_name .. [[_state.dart';
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc extends Bloc<]] .. feature_name:gsub("^%l", string.upper) .. [[Event, ]] .. feature_name:gsub("^%l", string.upper) .. [[State> {
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc() : super(const ]] .. feature_name:gsub("^%l", string.upper) .. [[State()) {
+    on<ExampleEvent>(_mapExampleEventToState);
   }
 
-  @override
-  void onReady() {
-    // Called after widget is rendered on screen
-    super.onReady();
-  }
-
-  @override
-  void onClose() {
-    // Called when controller is removed from memory
-    super.onClose();
+  void _mapExampleEventToState(ExampleEvent event, Emitter<]] .. feature_name:gsub("^%l", string.upper) .. [[State> emit) {
+    emit(state.copyWith(message: "Handled ExampleEvent"));
   }
 }
 ]]
-  create_file(controller_file, controller_content)
+  create_file(bloc_file, bloc_content)
+
+  -- Event file
+  local event_file = feature_path .. "/controller/" .. feature_name .. "_event.dart"
+  local event_content = [[
+part of ']] .. feature_name .. [[_bloc.dart';
+
+@immutable
+abstract class ]] .. feature_name:gsub("^%l", string.upper) .. [[Event extends Equatable {
+  const ]] .. feature_name:gsub("^%l", string.upper) .. [[Event();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class ExampleEvent extends ]] .. feature_name:gsub("^%l", string.upper) .. [[Event {}
+]]
+  create_file(event_file, event_content)
+
+  -- State file
+  local state_file = feature_path .. "/controller/" .. feature_name .. "_state.dart"
+  local state_content = [[
+part of ']] .. feature_name .. [[_bloc.dart';
+
+enum ]] .. feature_name:gsub("^%l", string.upper) .. [[Status { initial, loading, success, error }
+
+class ]] .. feature_name:gsub("^%l", string.upper) .. [[State extends Equatable {
+  const ]] .. feature_name:gsub("^%l", string.upper) .. [[State({
+    this.status = ]] .. feature_name:gsub("^%l", string.upper) .. [[Status.initial,
+    this.message = '',
+  });
+
+  final ]] .. feature_name:gsub("^%l", string.upper) .. [[Status status;
+  final String message;
+
+  ]] .. feature_name:gsub("^%l", string.upper) .. [[State copyWith({
+    ]] .. feature_name:gsub("^%l", string.upper) .. [[Status? status,
+    String? message,
+  }) {
+    return ]] .. feature_name:gsub("^%l", string.upper) .. [[State(
+      status: status ?? this.status,
+      message: message ?? this.message,
+    );
+  }
+
+  @override
+  List<Object?> get props => [status, message];
+}
+]]
+  create_file(state_file, state_content)
 
   -- Model file
   local model_file = feature_path .. "/model/" .. feature_name .. "_model.dart"
@@ -55,20 +99,25 @@ class ]] .. feature_name:gsub("^%l", string.upper) .. [[Model {
   local view_file = feature_path .. "/view/" .. feature_name .. "_view.dart"
   local view_content = [[
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../controller/]] .. feature_name .. [[_controller.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../controller/]] .. feature_name .. [[_bloc.dart';
 
 class ]] .. feature_name:gsub("^%l", string.upper) .. [[View extends StatelessWidget {
-  final controller = Get.put(]] .. feature_name:gsub("^%l", string.upper) .. [[Controller());
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(']] .. feature_name:gsub("^%l", string.upper) .. [[View'),
       ),
-      body: Center(
-        child: Text('Hello from ]] .. feature_name:gsub("^%l", string.upper) .. [[View'),
+      body: BlocProvider(
+        create: (_) => ]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc(),
+        child: BlocBuilder<]] .. feature_name:gsub("^%l", string.upper) .. [[Bloc, ]] .. feature_name:gsub("^%l", string.upper) .. [[State>(
+          builder: (context, state) {
+            return Center(
+              child: Text(state.message),
+            );
+          },
+        ),
       ),
     );
   }
@@ -87,52 +136,8 @@ local function generate_architecture_structure(base_path, feature_name, architec
       create_directory(feature_path .. "/" .. dir)
     end
 
-    -- Generate boilerplate files for MVC with GetX
-    if state_management == "getx" then
-      generate_mvc_with_getx_files(feature_path, feature_name)
-    end
-  elseif architecture == "mvvm" then
-    local mvvm_directories = { "model", "view", "viewmodel" }
-    for _, dir in ipairs(mvvm_directories) do
-      create_directory(feature_path .. "/" .. dir)
-    end
-
-    -- Create files for MVVM
-    create_file(feature_path .. "/model/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
-    create_file(feature_path .. "/view/" .. feature_name .. "_view.dart", "// View file for " .. feature_name)
-    create_file(feature_path .. "/viewmodel/" .. feature_name .. "_viewmodel.dart", "// ViewModel file for " .. feature_name)
-  elseif architecture == "clean" then
-    local clean_directories = {
-      "data/models",
-      "domain/entities",
-      "presentation/widgets",
-    }
-    for _, dir in ipairs(clean_directories) do
-      create_directory(feature_path .. "/" .. dir)
-    end
-
-    -- Create generic clean architecture files
-    create_file(feature_path .. "/data/models/" .. feature_name .. "_model.dart", "// Model file for " .. feature_name)
-    create_file(feature_path .. "/domain/entities/" .. feature_name .. "_entity.dart", "// Entity file for " .. feature_name)
-    create_file(feature_path .. "/presentation/widgets/" .. feature_name .. "_widget.dart", "// Widget file for " .. feature_name)
-  end
-
-  -- Handle additional state management logic only for non-MVC architectures
-  if architecture ~= "mvc" then
     if state_management == "bloc" then
-      local bloc_path = feature_path .. "/presentation/blocs"
-      create_directory(bloc_path)
-      create_file(bloc_path .. "/" .. feature_name .. "_bloc.dart", "// Bloc file for " .. feature_name)
-
-    elseif state_management == "provider" then
-      local provider_path = feature_path .. "/presentation/providers"
-      create_directory(provider_path)
-      create_file(provider_path .. "/" .. feature_name .. "_provider.dart", "// Provider file for " .. feature_name)
-
-    elseif state_management == "riverpod" then
-      local riverpod_path = feature_path .. "/presentation/providers"
-      create_directory(riverpod_path)
-      create_file(riverpod_path .. "/" .. feature_name .. "_provider.dart", "// Riverpod provider file for " .. feature_name)
+      generate_mvc_with_bloc_files(feature_path, feature_name)
     end
   end
 end
@@ -170,7 +175,6 @@ function M.generate_feature()
 end
 
 function M.setup()
-  -- Provide default key mapping
   vim.keymap.set("n", "<leader>af", M.generate_feature, { desc = "Generate Flutter feature" })
 end
 
