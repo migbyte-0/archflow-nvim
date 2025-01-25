@@ -1,5 +1,6 @@
 local M = {}
 
+-- Utility functions for directory and file creation
 local function create_directory(path)
   os.execute("mkdir -p " .. path)
 end
@@ -14,247 +15,180 @@ local function create_file(path, content)
   end
 end
 
-local function generate_boilerplate(feature_path, feature_name, boilerplates)
-  for file_name, content in pairs(boilerplates) do
-    local file_path = feature_path .. "/" .. file_name
-    create_file(file_path, content)
-  end
-end
-
-local function get_boilerplate(feature_name, architecture, state_management)
-  local class_name = feature_name:gsub("^%l", string.upper)
-  local boilerplates = {}
-
-  if architecture == "mvc" then
-    -- Add MVC-specific boilerplates based on state management
-    if state_management == "provider" then
-      boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
-import 'package:flutter/material.dart';
-
-class ]] .. class_name .. [[Provider extends ChangeNotifier {
-  String _message = 'Default Message';
-
-  String get message => _message;
-
-  void updateMessage(String newMessage) {
-    _message = newMessage;
-    notifyListeners();
-  }
-}
-]]
-    elseif state_management == "bloc" then
-      boilerplates["controller/" .. feature_name .. "_bloc.dart"] = [[
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-
-part ']] .. feature_name .. [[_event.dart';
-part ']] .. feature_name .. [[_state.dart';
-
-class ]] .. class_name .. [[Bloc extends Bloc<]] .. class_name .. [[Event, ]] .. class_name .. [[State> {
-  ]] .. class_name .. [[Bloc() : super(]] .. class_name .. [[Initial());
-
-  @override
-  Stream<]] .. class_name .. [[State> mapEventToState(]] .. class_name .. [[Event event) async* {
-    // Add logic here
-  }
-}
-]]
-
-      boilerplates["controller/" .. feature_name .. "_event.dart"] = [[
-part of ']] .. feature_name .. [[_bloc.dart';
-
-abstract class ]] .. class_name .. [[Event extends Equatable {
-  const ]] .. class_name .. [[Event();
-
-  @override
-  List<Object> get props => [];
-}
-
-class ]] .. class_name .. [[Started extends ]] .. class_name .. [[Event {}
-]]
-
-      boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
-part of ']] .. feature_name .. [[_bloc.dart';
-
-enum ]] .. class_name .. [[Status { initial, loading, success, error }
-
-class ]] .. class_name .. [[State extends Equatable {
-  const ]] .. class_name .. [[State({
-    this.status = ]] .. class_name .. [[Status.initial,
-    this.message = '',
-  });
-
-  final ]] .. class_name .. [[Status status;
-  final String message;
-
-  ]] .. class_name .. [[State copyWith({
-    ]] .. class_name .. [[Status? status,
-    String? message,
-  }) {
-    return ]] .. class_name .. [[State(
-      status: status ?? this.status,
-      message: message ?? this.message,
-    );
-  }
-
-  @override
-  List<Object?> get props => [status, message];
-}
-]]
-    elseif state_management == "cubit" then
-      boilerplates["controller/" .. feature_name .. "_cubit.dart"] = [[
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-
-part ']] .. feature_name .. [[_state.dart';
-
-class ]] .. class_name .. [[Cubit extends Cubit<]] .. class_name .. [[State> {
-  ]] .. class_name .. [[Cubit() : super(]] .. class_name .. [[Initial());
-
-  void updateMessage(String message) {
-    emit(]] .. class_name .. [[Updated(message));
-  }
-}
-]]
-
-      boilerplates["controller/" .. feature_name .. "_state.dart"] = [[
-part of ']] .. feature_name .. [[_cubit.dart';
-
-enum ]] .. class_name .. [[Status { initial, updated }
-
-class ]] .. class_name .. [[State extends Equatable {
-  const ]] .. class_name .. [[State({
-    this.status = ]] .. class_name .. [[Status.initial,
-    this.message = '',
-  });
-
-  final ]] .. class_name .. [[Status status;
-  final String message;
-
-  @override
-  List<Object> get props => [status, message];
-}
-
-class ]] .. class_name .. [[Initial extends ]] .. class_name .. [[State {}
-
-class ]] .. class_name .. [[Updated extends ]] .. class_name .. [[State {
-  final String message;
-
-  ]] .. class_name .. [[Updated(this.message) : super(status: ]] .. class_name .. [[Status.updated, message: message);
-
-  @override
-  List<Object> get props => [message];
-}
-]]
-    elseif state_management == "riverpod" then
-      boilerplates["controller/" .. feature_name .. "_provider.dart"] = [[
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-class ]] .. class_name .. [[Notifier extends StateNotifier<String> {
-  ]] .. class_name .. [[Notifier() : super('Default Message');
-
-  void updateMessage(String newMessage) {
-    state = newMessage;
-  }
-}
-
-final ]] .. feature_name .. [[Provider = StateNotifierProvider<]] .. class_name .. [[Notifier, String>((ref) => ]] .. class_name .. [[Notifier());
-]]
-    elseif state_management == "getx" then
-      boilerplates["controller/" .. feature_name .. "_controller.dart"] = [[
-import 'package:get/get.dart';
-
-class ]] .. class_name .. [[Controller extends GetxController {
-  var message = 'Default Message'.obs;
-
-  void updateMessage(String newMessage) {
-    message.value = newMessage;
-  }
-}
-]]
-    end
-
-  elseif architecture == "mvvm" then
-    boilerplates["viewmodel/" .. feature_name .. "_viewmodel.dart"] = [[
-class ]] .. class_name .. [[ViewModel {
-  // Add your view model logic here
-}
-]]
-  end
-
-  boilerplates["model/" .. feature_name .. "_model.dart"] = [[
-class ]] .. class_name .. [[Model {
-  // Add your model properties here
-}
-]]
-
-  boilerplates["view/" .. feature_name .. "_view.dart"] = [[
-import 'package:flutter/material.dart';
-
-class ]] .. class_name .. [[View extends StatelessWidget {
-  const ]] .. class_name .. [[View({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(']] .. class_name .. [[ View'),
-      ),
-      body: Center(
-        child: const Text('Welcome to ]] .. class_name .. [[ View'),
-      ),
-    );
-  }
-}
-]]
-
-  return boilerplates
-end
-
-local function generate_architecture_structure(base_path, feature_name, architecture, state_management)
-  local feature_path = base_path .. "/lib/features/" .. feature_name
-  create_directory(feature_path)
-
+-- Generate files dynamically based on architecture and state management
+local function generate_clean_architecture_files(base_path, feature_name, state_management)
   local directories = {
+    "data/datasources",
+    "data/models",
+    "data/repositories",
+    "domain/entities",
+    "domain/usecases",
+    "presentation/screens",
+    "presentation/widgets",
+    "presentation/" .. (state_management == "bloc" and "blocs" or state_management .. "s"),
+  }
+
+  for _, dir in ipairs(directories) do
+    create_directory(base_path .. "/" .. dir)
+  end
+
+  -- Generate files with boilerplate code
+  if state_management == "bloc" then
+    M.create_bloc_files(base_path .. "/presentation/blocs", feature_name)
+  elseif state_management == "cubit" then
+    M.create_cubit_files(base_path .. "/presentation/cubits", feature_name)
+  elseif state_management == "provider" then
+    M.create_provider_files(base_path .. "/presentation/providers", feature_name)
+  elseif state_management == "getx" then
+    M.create_getx_files(base_path .. "/presentation/getxs", feature_name)
+  elseif state_management == "riverpod" then
+    M.create_riverpod_files(base_path .. "/presentation/providers", feature_name)
+  end
+end
+
+local function generate_mvc_or_mvvm_files(base_path, feature_name, architecture, state_management)
+  local architecture_map = {
     mvc = { "model", "view", "controller" },
     mvvm = { "model", "view", "viewmodel" },
   }
 
-  for _, dir in ipairs(directories[architecture]) do
-    create_directory(feature_path .. "/" .. dir)
+  local directories = architecture_map[architecture]
+  for _, dir in ipairs(directories) do
+    create_directory(base_path .. "/" .. dir)
   end
 
-  local boilerplates = get_boilerplate(feature_name, architecture, state_management)
-  generate_boilerplate(feature_path, feature_name, boilerplates)
+  -- Generate state management specific files
+  if state_management == "bloc" then
+    M.create_bloc_files(base_path .. "/controller", feature_name)
+  elseif state_management == "cubit" then
+    M.create_cubit_files(base_path .. "/controller", feature_name)
+  elseif state_management == "provider" then
+    M.create_provider_files(base_path .. "/controller", feature_name)
+  elseif state_management == "getx" then
+    M.create_getx_files(base_path .. "/controller", feature_name)
+  elseif state_management == "riverpod" then
+    M.create_riverpod_files(base_path .. "/controller", feature_name)
+  end
+end
+
+function M.create_bloc_files(path, feature_name)
+  local bloc_file = path .. "/" .. feature_name .. "_bloc.dart"
+  local event_file = path .. "/" .. feature_name .. "_event.dart"
+  local state_file = path .. "/" .. feature_name .. "_state.dart"
+
+  create_file(bloc_file, [[
+import 'package:flutter_bloc/flutter_bloc.dart';
+import ']] .. feature_name .. "_event.dart';
+import '" .. feature_name .. "_state.dart';
+
+class " .. feature_name:gsub("^%l", string.upper) .. "Bloc extends Bloc<" .. feature_name .. "Event, " .. feature_name .. "State> {
+  " .. feature_name:gsub("^%l", string.upper) .. "Bloc() : super(" .. feature_name:gsub("^%l", string.upper) .. "Initial());
+}
+]])
+
+  create_file(event_file, [[
+part of ']] .. feature_name .. "_bloc.dart';
+
+abstract class " .. feature_name:gsub("^%l", string.upper) .. "Event {}
+]])
+
+  create_file(state_file, [[
+part of ']] .. feature_name .. "_bloc.dart';
+
+abstract class " .. feature_name:gsub("^%l", string.upper) .. "State {}
+
+class " .. feature_name:gsub("^%l", string.upper) .. "Initial extends " .. feature_name:gsub("^%l", string.upper) .. "State {}
+]])
+end
+
+function M.create_cubit_files(path, feature_name)
+  local cubit_file = path .. "/" .. feature_name .. "_cubit.dart"
+  local state_file = path .. "/" .. feature_name .. "_state.dart"
+
+  create_file(cubit_file, [[
+import 'package:flutter_bloc/flutter_bloc.dart';
+import ']] .. feature_name .. "_state.dart';
+
+class " .. feature_name:gsub("^%l", string.upper) .. "Cubit extends Cubit<" .. feature_name:gsub("^%l", string.upper) .. "State> {
+  " .. feature_name:gsub("^%l", string.upper) .. "Cubit() : super(" .. feature_name:gsub("^%l", string.upper) .. "Initial());
+}
+]])
+
+  create_file(state_file, [[
+abstract class " .. feature_name:gsub("^%l", string.upper) .. "State {}
+
+class " .. feature_name:gsub("^%l", string.upper) .. "Initial extends " .. feature_name:gsub("^%l", string.upper) .. "State {}
+]])
+end
+
+function M.create_provider_files(path, feature_name)
+  local provider_file = path .. "/" .. feature_name .. "_provider.dart"
+
+  create_file(provider_file, [[
+import 'package:flutter/material.dart';
+
+class " .. feature_name:gsub("^%l", string.upper) .. "Provider extends ChangeNotifier {
+  String data = "Initial Data";
+
+  void updateData(String newData) {
+    data = newData;
+    notifyListeners();
+  }
+}
+]])
+end
+
+function M.create_getx_files(path, feature_name)
+  local controller_file = path .. "/" .. feature_name .. "_controller.dart"
+
+  create_file(controller_file, [[
+import 'package:get/get.dart';
+
+class " .. feature_name:gsub("^%l", string.upper) .. "Controller extends GetxController {
+  var data = "Initial Data".obs;
+
+  void updateData(String newData) {
+    data.value = newData;
+  }
+}
+]])
+end
+
+function M.create_riverpod_files(path, feature_name)
+  local provider_file = path .. "/" .. feature_name .. "_provider.dart"
+
+  create_file(provider_file, [[
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class " .. feature_name:gsub("^%l", string.upper) .. "Notifier extends StateNotifier<String> {
+  " .. feature_name:gsub("^%l", string.upper) .. "Notifier() : super("Initial Data");
+
+  void updateData(String newData) {
+    state = newData;
+  }
+}
+
+final " .. feature_name .. "Provider = StateNotifierProvider<" .. feature_name:gsub("^%l", string.upper) .. "Notifier, String>((ref) {
+  return " .. feature_name:gsub("^%l", string.upper) .. "Notifier();
+});
+]])
 end
 
 function M.generate_feature()
   local base_path = vim.fn.getcwd()
-
-  local architecture_choice = vim.fn.input("Select architecture (m: mvc, v: mvvm): ")
-  local architecture_map = { m = "mvc", v = "mvvm" }
-  local architecture = architecture_map[architecture_choice]
-  if not architecture then
-    print("Invalid architecture selection.")
-    return
-  end
-
-  local state_choice = vim.fn.input("Select state management (p: provider, b: bloc, r: riverpod, g: getx, c: cubit): ")
-  local state_map = { p = "provider", b = "bloc", r = "riverpod", g = "getx", c = "cubit" }
-  local state_management = state_map[state_choice]
-  if not state_management then
-    print("Invalid state management selection.")
-    return
-  end
-
+  local architecture_choice = vim.fn.input("Choose architecture (mvc/mvvm/clean): ")
+  local state_choice = vim.fn.input("Choose state management (bloc/cubit/provider/getx/riverpod): ")
   local feature_name = vim.fn.input("Enter feature name: ")
-  if feature_name == "" then
-    print("Feature name cannot be empty.")
-    return
+
+  if architecture_choice == "mvc" or architecture_choice == "mvvm" then
+    generate_mvc_or_mvvm_files(base_path, feature_name, architecture_choice, state_choice)
+  elseif architecture_choice == "clean" then
+    generate_clean_architecture_files(base_path, feature_name, state_choice)
+  else
+    print("Invalid architecture choice")
   end
 
-  generate_architecture_structure(base_path, feature_name, architecture, state_management)
-  print("Feature " .. feature_name .. " generated with " .. architecture .. " and " .. state_management .. ".")
+  print("Feature " .. feature_name .. " generated with " .. architecture_choice .. " and " .. state_choice .. ".")
 end
 
 function M.setup()
