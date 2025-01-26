@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="https://arc.net/l/quote/bmspblws" alt="Done by Migbyte" width="250" />
+  <img src="https://github.com/migbyte-0/archflow-nvim/blob/main/migbye_logo.svg" alt="Done by Migbyte" width="250" />
   <p style="font-size: 20px; font-weight: bold;">
     Done by <span style="color: lightgreen;">Migbyte</span> Team
   </p>
