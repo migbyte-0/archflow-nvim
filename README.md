@@ -1,4 +1,6 @@
 
+Here's a revamped **ArchFlow.nvim** README with icons, a more creative ASCII art header, and an improved layout to make it visually appealing and engaging:
+
 ```markdown
 <div align="center">
   <img src="https://github.com/migbyte-0/ArchFlow.nvim/blob/main/migbyte.svg" alt="ArchFlow by Migbyte" width="250" />
@@ -8,76 +10,98 @@
 </div>
 
 # ArchFlow.nvim  
-Architecture + Flow = ArchFlow  
-Automate your Flutter project setup with ease!  
+🚀 **Architecture + Flow = ArchFlow**  
+Automate your Flutter project setup with ease!
 
 ```lua
-      __      _       _
-  ___/ _| ___| |_ ___| |
- / __| |_ / _ \ __/ __| |
- \__ \  _|  __/ |_\__ \ |
- |___/_|  \___|\__|___/_|
-    A R C H F L O W
+      ╔════════════════════════════════════════╗
+      ║                                        ║
+      ║     ▄▄▄▄▄  ▄████▄   ██▀███   ▄▄▄       ║
+      ║    ▒██▀ ▀█ ▒██▀ ▀█  ▓██ ▒ ██▒▒████▄     ║
+      ║    ▒▓█    ▄▒▓█    ▄ ▓██ ░▄█ ▒▒██  ▀█▄   ║
+      ║    ▒▓▓▄ ▄██▒▓▓▄ ▄██▒▒██▀▀█▄  ░██▄▄▄▄██  ║
+      ║    ▒ ▓███▀ ▒ ▓███▀ ░░██▓ ▒██▒ ▓█   ▓██▒ ║
+      ║    ░ ░▒ ▒  ░ ░▒ ▒  ░░ ▒▓ ░▒▓░ ▒▒   ▓▒█░ ║
+      ║      ░  ▒    ░  ▒     ░▒ ░ ▒░  ▒   ▒▒ ░ ║
+      ║     ░         ░        ░   ░   ░   ▒    ║
+      ║           ░             ░           ░  ░║
+      ║                                        ║
+      ║  Flutter Architecture Made Simple      ║
+      ╚════════════════════════════════════════╝
 ```
 
-> **"Simplifying Flutter development by automating feature creation!"**
+---
+
+# Table of Contents 📜  
+1. [🌟 Why ArchFlow?](#why-archflow)  
+2. [✨ Features](#features)  
+3. [⚙️ Installation](#installation)  
+4. [🚀 Usage](#usage)  
+5. [🔧 Configuration](#configuration)  
+6. [📦 Dependencies](#dependencies)  
+7. [📚 Advanced Topics](#advanced-topics)  
+   * [📂 Custom Architecture Templates](#custom-architecture-templates)  
+   * [🔌 State Management Integration](#state-management-integration)  
+8. [📜 License](#license)  
 
 ---
 
-# Table of Contents
-1. [Why ArchFlow?](#why-archflow)
-2. [Features](#features)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Configuration](#configuration)
-6. [Dependencies](#dependencies)
-7. [Advanced Topics](#advanced-topics)
-   * [Custom Architecture Templates](#custom-architecture-templates)
-   * [State Management Integration](#state-management-integration)
-8. [License](#license)
+# 🌟 Why ArchFlow?
+
+💡 **ArchFlow.nvim** saves time and simplifies your Flutter development process by automating the repetitive task of setting up feature folders and boilerplate files. 
+
+With **ArchFlow**, you can:  
+- ⚡ Quickly set up a feature structure.  
+- 📏 Maintain consistent architecture across your project.  
+- 🌟 Integrate your favorite state management libraries.  
+- 🚀 Focus on building features, not managing boilerplate.
 
 ---
 
-# Why ArchFlow?
-Flutter projects often require repetitive setup for new features, including creating folder structures and wiring up state management. ArchFlow.nvim simplifies this process by automating it, allowing you to focus on building your app instead of managing boilerplate.
+# ✨ Features
 
-## Key Benefits:
-- **Save Time:** Instantly set up folders and files for your architecture.
-- **Consistency:** Standardize the structure across your Flutter project.
-- **Flexible State Management:** Supports multiple state management libraries.
-- **Ease of Use:** Quickly navigate and manage created features.
-
----
-
-# Features
-## **Architecture Selection**
-Generate feature structures for the most common architectures:
+### **📂 Architecture Selection**
+Effortlessly generate feature structures for:  
    - `MVC`  
    - `MVVM`  
    - `Clean Architecture`
 
-## **State Management Integration**
-Supports the following state management libraries:
-   - **Provider**
-   - **Riverpod**
-   - **BLoC**
-   - **Cubit**
+### **⚡ State Management Integration**
+Supports seamless integration with:  
+   - **Provider**  
+   - **Riverpod**  
+   - **BLoC**  
+   - **Cubit**  
    - **GetX**
 
-## **Customizable Templates**
-Modify or extend boilerplate code for any architecture or state management.
+### **🛠 Customizable Templates**
+Modify or extend boilerplate code to suit your needs.
 
-## **Quick Navigation**
-Integrated file navigator for accessing recently created features.
+### **📁 Quick Navigation**
+Navigate recently created features with an integrated file navigator.
 
 ---
 
-# Installation
+# ⚙️ Installation
 
 Install using **lazy.nvim** or your preferred plugin manager:
 
 ```lua
 {
+  "migbyte-0/archflow.nvim",
+  config = function()
+    require("archflow").setup({
+      keybinding = "<leader>af", -- Optional: Change default keybinding
+      debug = false,            -- Optional: Enable debug logs
+    })
+  end,
+}
+```
+
+Alternatively, with **packer.nvim**:
+
+```lua
+use {
   "migbyte-0/archflow.nvim",
   config = function()
     require("archflow").setup()
@@ -87,69 +111,73 @@ Install using **lazy.nvim** or your preferred plugin manager:
 
 ---
 
-# Usage
+# 🚀 Usage
 
-1. Run `:ArchFlowGenerate` or use the default keybinding `<leader>af`.
-2. Select the desired architecture (`MVC`, `MVVM`, or `Clean Architecture`).
-3. Choose your state management library (`Provider`, `Riverpod`, etc.).
-4. Enter the feature name.
-5. Watch ArchFlow.nvim create the feature's folder structure and files in seconds!
+1. Run `:ArchFlowGenerate` or use the keybinding `<leader>af`.  
+2. Select an architecture (`MVC`, `MVVM`, or `Clean Architecture`).  
+3. Choose a state management library (`Provider`, `Riverpod`, etc.).  
+4. Enter a feature name (e.g., "Authentication").  
+5. Watch ArchFlow generate the structure and boilerplate files in seconds! 🎉  
 
-Example:
-
-```lua
-// Select "Clean Architecture" and "BLoC":
-// Folder structure auto-generated for 'Authentication':
-// - data/
-// - domain/
-// - presentation/
+Example:  
+```plaintext
+// Clean Architecture folder structure for "Authentication":
+- data/
+  - repositories/
+  - models/
+- domain/
+  - usecases/
+  - entities/
+- presentation/
+  - screens/
+  - blocs/
 ```
 
 ---
 
-# Configuration
+# 🔧 Configuration
 
-Customize the plugin in your Neovim configuration:
+You can customize ArchFlow.nvim by passing options to the `setup` function:
 
-```lua
-require("archflow").setup({
-  keybinding = "<leader>af",  -- Default keybinding
-  debug = false,             -- Enable debug logs
-})
-```
+| Option         | Default        | Description                                                |
+|----------------|----------------|------------------------------------------------------------|
+| `keybinding`   | `<leader>af`   | Default keybinding to invoke the plugin.                  |
+| `debug`        | `false`        | Enable debug logs for troubleshooting.                    |
 
 ---
 
-# Dependencies
+# 📦 Dependencies
 
 1. **Neovim** (>= 0.8.0)  
-2. **Flutter SDK**
+2. **Flutter SDK**  
 
 ---
 
-# Advanced Topics
+# 📚 Advanced Topics
 
-### Custom Architecture Templates
+### 📂 Custom Architecture Templates
 
-Easily extend or modify boilerplate templates by editing the files under `lua/archflow/templates`. Use this feature to add new logic, include additional files, or support custom state management.
+Customize your architecture setup by modifying the template files located in `lua/archflow/templates`.
 
-### State Management Integration
+### 🔌 State Management Integration
 
-ArchFlow automatically generates state management boilerplate files for your chosen library:
-- **Provider:** `ChangeNotifier` classes.
-- **Riverpod:** `StateNotifier` or `Provider` setup.
-- **BLoC/Cubit:** Events, states, and BLoC/Cubit files.
-- **GetX:** Controllers and reactive state management logic.
+ArchFlow generates boilerplate files for your chosen state management library:  
+   - **Provider**: `ChangeNotifier` classes.  
+   - **Riverpod**: `StateNotifier` or `Provider` logic.  
+   - **BLoC**: Event, state, and BLoC files.  
+   - **Cubit**: Cubit logic files with states.  
+   - **GetX**: Reactive controllers and bindings.  
 
 ---
 
-# License
-ArchFlow.nvim is distributed under the **MIT License**. See [LICENSE](LICENSE) for more information.
+# 📜 License
+
+ArchFlow.nvim is distributed under the **MIT License**.  
 
 ```vbnet
 MIT License
 
-Copyright (c) 2025 migbyte-0
+Copyright (c) 2025 Migbyte
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
 associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -160,7 +188,14 @@ furnished to do so, subject to the following conditions:
 
 ---
 
-# Get Started Now! 🚀  
-Feel free to open PRs, issues, or share your feedback. Together, let’s simplify Flutter development.  
-ArchFlow on! 🎨
-```
+# 🌟 Start Automating Today! 🚀  
+
+Feel free to open PRs, issues, or share your feedback. Together, let’s simplify Flutter development!  
+**ArchFlow on!** 🎨✨  
+``` 
+
+This README includes:  
+- Creative and relevant ASCII art.  
+- Emoji-based sections for an engaging layout.  
+- Clearly structured headings and bullet points.  
+It ensures a visually appealing and professional display on GitHub!
