@@ -31,17 +31,20 @@ Automate your Flutter project setup with ease!
 
 ---
 
+
+
 # Table of Contents 📜  
 1. [🌟 Why ArchFlow?](#why-archflow)  
-2. [✨ Features](#features)  
-3. [⚙️ Installation](#installation)  
-4. [🚀 Usage](#usage)  
-5. [🔧 Configuration](#configuration)  
-6. [📦 Dependencies](#dependencies)  
-7. [📚 Advanced Topics](#advanced-topics)  
+2. [✨ Features](#features)
+3. [⚙️ Screenshots](#screenshots)  
+4. [⚙️ Installation](#installation)  
+5. [🚀 Usage](#usage)  
+6. [🔧 Configuration](#configuration)  
+7. [📦 Dependencies](#dependencies)  
+8. [📚 Advanced Topics](#advanced-topics)  
    * [📂 Custom Architecture Templates](#custom-architecture-templates)  
    * [🔌 State Management Integration](#state-management-integration)  
-8. [📜 License](#license)  
+9. [📜 License](#license)  
 
 ---
 
@@ -73,6 +76,7 @@ Supports seamless integration with:
    - **Cubit**  
    - **GetX**
 
+
 ### **🛠 Customizable Templates**
 Modify or extend boilerplate code to suit your needs.
 
@@ -80,6 +84,29 @@ Modify or extend boilerplate code to suit your needs.
 Navigate recently created features with an integrated file navigator.
 
 ---
+
+# 📸 Screenshots
+
+Here are some screenshots showcasing the features and functionality of **ArchFlow.nvim**:
+
+<div align="center">
+  <img src="screenshots/first.png" alt="Screenshot 1" width="600" />
+  <p>✨ Automatically generated Clean Architecture structure</p>
+</div>
+
+<div align="center">
+  <img src="screenshots/second.png" alt="Screenshot 2" width="600" />
+  <p>📂 Folder structure for MVC architecture</p>
+</div>
+
+<div align="center">
+  <img src="screenshots/third.png" alt="Screenshot 3" width="600" />
+  <p>🔌 Integration with state management libraries</p>
+</div>
+
+
+---
+
 
 # ⚙️ Installation
 
