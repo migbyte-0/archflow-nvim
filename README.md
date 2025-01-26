@@ -1,10 +1,11 @@
 
 <div align="center">
-  <img src="migbyte_logo.svg" alt="Done by Migbyte" width="250" />
+  <img src="https://raw.githubusercontent.com/migbyte-0/ArchFlow.nvim/main/migbyte_logo.svg" alt="Done by Migbyte" width="250" />
   <p style="font-size: 20px; font-weight: bold;">
     Done by <span style="color: lightgreen;">Migbyte</span> Team
   </p>
 </div>
+
 
 
 # ArchFlow.nvim  
