@@ -1,4 +1,3 @@
-Here is the README for **ArchFlow.nvim** rewritten in the same visually engaging and structured style as the **Struml** README:
 
 ```markdown
 <div align="center">
