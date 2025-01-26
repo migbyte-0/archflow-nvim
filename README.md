@@ -48,17 +48,17 @@ Automate your Flutter project setup with ease!
 
 
 # Table of Contents 📜  
-1. [🌟 Why ArchFlow?](#-why-archflow)  
-2. [✨ Features](#-features)
-3. [📸 Screenshots](#-screenshots)  
+1. [🌟 Why ArchFlow?](#why-archflow)  
+2. [✨ Features](#features)  
+3. [📸 Screenshots](#screenshots)  
 4. [🔨 Installation](#installation)  
-5. [🚀 Usage](#-usage)  
-6. [🔧 Configuration](#-configuration)  
-7. [📦 Dependencies](#-dependencies)  
-8. [📚 Advanced Topics](#-advanced-topics)  
-   * [📂 Custom Architecture Templates](#-custom-architecture-templates)  
-   * [🔌 State Management Integration](#-state-management-integration)  
-9. [📜 License](#-license)
+5. [🚀 Usage](#usage)  
+6. [🔧 Configuration](#configuration)  
+7. [📦 Dependencies](#dependencies)  
+8. [📚 Advanced Topics](#advanced-topics)  
+   * [📂 Custom Architecture Templates](#custom-architecture-templates)  
+   * [🔌 State Management Integration](#state-management-integration)  
+9. [📜 License](#license)
 
 
 ---
