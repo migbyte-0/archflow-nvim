@@ -1,5 +1,4 @@
 
-Here's a revamped **ArchFlow.nvim** README with icons, a more creative ASCII art header, and an improved layout to make it visually appealing and engaging:
 
 ```markdown
 <div align="center">
