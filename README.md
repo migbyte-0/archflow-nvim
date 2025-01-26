@@ -133,7 +133,7 @@ Here are some screenshots showcasing the features and functionality of **ArchFlo
 ---
 
 
-# ⚙️ Installation
+# 🔨 Installation
 
 Install using **lazy.nvim** or your preferred plugin manager:
 
