@@ -48,22 +48,23 @@ Automate your Flutter project setup with ease!
 
 
 # Table of Contents 📜  
-1. [🌟 Why ArchFlow?](#why-archflow)  
-2. [✨ Features](#features)  
-3. [📸 Screenshots](#screenshots)  
-4. [🔨 Installation](#installation)  
-5. [🚀 Usage](#usage)  
-6. [🔧 Configuration](#configuration)  
-7. [📦 Dependencies](#dependencies)  
-8. [📚 Advanced Topics](#advanced-topics)  
-   * [📂 Custom Architecture Templates](#custom-architecture-templates)  
-   * [🔌 State Management Integration](#state-management-integration)  
-9. [📜 License](#license)
+1. [Why ArchFlow?](#why-archflow)  
+2. [Features](#features)  
+3. [Screenshots](#screenshots)  
+4. [Installation](#installation)  
+5. [Usage](#usage)  
+6. [Configuration](#configuration)  
+7. [Dependencies](#dependencies)  
+8. [Advanced Topics](#advanced-topics)  
+   * [Custom Architecture Templates](#custom-architecture-templates)  
+   * [State Management Integration](#state-management-integration)  
+9. [License](#license)
+
 
 
 ---
 
-# 🌟 Why ArchFlow?
+# Why ArchFlow?
 
 💡 **ArchFlow.nvim** saves time and simplifies your Flutter development process by automating the repetitive task of setting up feature folders and boilerplate files. 
 
@@ -75,7 +76,7 @@ With **ArchFlow**, you can:
 
 ---
 
-# ✨ Features
+# Features
 
 ### **📂 Architecture Selection**
 Effortlessly generate feature structures for:  
@@ -100,7 +101,7 @@ Navigate recently created features with an integrated file navigator.
 
 ---
 
-# 📸 Screenshots
+# Screenshots
 
 Here are some screenshots showcasing the features and functionality of **ArchFlow.nvim**:
 
@@ -133,7 +134,7 @@ Here are some screenshots showcasing the features and functionality of **ArchFlo
 ---
 
 
-# 🔨 Installation
+# Installation
 
 Install using **lazy.nvim** or your preferred plugin manager:
 
@@ -162,7 +163,7 @@ use {
 
 ---
 
-# 🚀 Usage
+# Usage
 
 1. Run `:ArchFlowGenerate` or use the keybinding `<leader>af`.  
 2. Select an architecture (`MVC`, `MVVM`, or `Clean Architecture`).  
@@ -186,7 +187,7 @@ Example:
 
 ---
 
-# 🔧 Configuration
+# Configuration
 
 You can customize ArchFlow.nvim by passing options to the `setup` function:
 
@@ -197,14 +198,14 @@ You can customize ArchFlow.nvim by passing options to the `setup` function:
 
 ---
 
-# 📦 Dependencies
+# Dependencies
 
 1. **Neovim** (>= 0.8.0)  
 2. **Flutter SDK**  
 
 ---
 
-# 📚 Advanced Topics
+# Advanced Topics
 
 ### 📂 Custom Architecture Templates
 
@@ -221,7 +222,7 @@ ArchFlow generates boilerplate files for your chosen state management library:
 
 ---
 
-# 📜 License
+# License
 
 ArchFlow.nvim is distributed under the **MIT License**.  
 
@@ -239,7 +240,7 @@ furnished to do so, subject to the following conditions:
 
 ---
 
-# 🌟 Start Automating Today! 🚀  
+# Start Automating Today! 🚀  
 
 Feel free to open PRs, issues, or share your feedback. Together, let’s simplify Flutter development!  
 **ArchFlow on!** 🎨✨  
