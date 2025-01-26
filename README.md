@@ -246,8 +246,3 @@ Feel free to open PRs, issues, or share your feedback. Together, let’s simplif
 **ArchFlow on!** 🎨✨  
 ``` 
 
-This README includes:  
-- Creative and relevant ASCII art.  
-- Emoji-based sections for an engaging layout.  
-- Clearly structured headings and bullet points.  
-It ensures a visually appealing and professional display on GitHub!
