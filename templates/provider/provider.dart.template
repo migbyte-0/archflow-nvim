@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class {{className}}Provider extends ChangeNotifier {
-  String _message = 'Default Message';
+  String _message = 'Initial Message';
 
   String get message => _message;
 
   void updateMessage(String newMessage) {
+    if (_message == newMessage) return;
     _message = newMessage;
     notifyListeners();
   }
