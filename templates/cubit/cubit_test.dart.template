@@ -1,0 +1,20 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:{{projectName}}/features/{{featureName}}/presentation/cubit/{{featureName}}_cubit.dart';
+
+void main() {
+  group('{{className}}Cubit', () {
+    test('initial state has initial message', () {
+      expect({{className}}Cubit().state, const {{className}}State(message: 'Initial Message'));
+    });
+
+    blocTest<{{className}}Cubit, {{className}}State>(
+      'emits new state when updateMessage is called',
+      build: () => {{className}}Cubit(),
+      act: (cubit) => cubit.updateMessage('New Message'),
+      expect: () => <{{className}}State>[
+        const {{className}}State(message: 'New Message'),
+      ],
+    );
+  });
+}
