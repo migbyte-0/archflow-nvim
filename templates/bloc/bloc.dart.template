@@ -5,9 +5,14 @@ part '{{featureName}}_event.dart';
 part '{{featureName}}_state.dart';
 
 class {{className}}Bloc extends Bloc<{{className}}Event, {{className}}State> {
-  {{className}}Bloc() : super({{className}}Initial()) {
-    on<{{className}}Event>((event, emit) {
-      // TODO: implement event handler
-    });
+  {{className}}Bloc() : super(const {{className}}State()) {
+    on<Custom{{className}}Event>(_onCustom{{className}}Event);
+  }
+
+  void _onCustom{{className}}Event(
+    Custom{{className}}Event event,
+    Emitter<{{className}}State> emit,
+  ) {
+    // TODO: implement event handler
   }
 }
