@@ -1,0 +1,27 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:{{projectName}}/features/{{featureName}}/presentation/store/{{featureName}}_store.dart';
+
+void main() {
+  group('{{className}}Store', () {
+    late {{className}}Store store;
+
+    setUp(() {
+      store = {{className}}Store();
+    });
+
+    test('initial message is correct', () {
+      expect(store.message, 'Initial Message');
+    });
+
+    test('updateMessage action changes the message', () {
+      // Arrange
+      const newMessage = 'Updated Message';
+
+      // Act
+      store.updateMessage(newMessage);
+
+      // Assert
+      expect(store.message, newMessage);
+    });
+  });
+}
