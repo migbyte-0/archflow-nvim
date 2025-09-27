@@ -1,0 +1,39 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:{{projectName}}/features/{{featureName}}/presentation/provider/{{featureName}}_provider.dart';
+
+void main() {
+  group('{{className}}Provider', () {
+    test('initial message is correct', () {
+      final provider = {{className}}Provider();
+      expect(provider.message, 'Initial Message');
+    });
+
+    test('updateMessage changes the message and notifies listeners', () {
+      final provider = {{className}}Provider();
+      int listenerCallCount = 0;
+      provider.addListener(() {
+        listenerCallCount++;
+      });
+
+      const newMessage = 'Updated Message';
+      provider.updateMessage(newMessage);
+
+      expect(provider.message, newMessage);
+      expect(listenerCallCount, 1);
+    });
+
+    test('updateMessage does not notify listeners if message is the same', () {
+      final provider = {{className}}Provider();
+      provider.updateMessage('New');
+      
+      int listenerCallCount = 0;
+      provider.addListener(() {
+        listenerCallCount++;
+      });
+
+      provider.updateMessage('New');
+
+      expect(listenerCallCount, 0);
+    });
+  });
+}
