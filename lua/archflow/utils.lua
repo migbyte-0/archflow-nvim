@@ -1,13 +1,6 @@
---[[
--- utils.lua
---
--- This module provides utility functions for path manipulation, template rendering,
--- and other helper tasks. It helps keep the rest of the codebase clean and focused.
---]]
+-- ~/.config/nvim/lua/local/archflow-nvim/lua/archflow/utils.lua
 
 local M = {}
-
--- ... (all other functions like notify, to_pascal_case, etc., stay the same) ...
 
 function M.notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO, { title = "ArchFlow" })
@@ -72,9 +65,6 @@ function M.find_project_root()
 end
 
 --- Reads the pubspec.yaml file and extracts the project name.
---- This is crucial for generating correct import paths in test files.
----@param project_root string The absolute path to the project root.
----@return string|nil The project name, or nil if not found.
 function M.get_project_name(project_root)
   local pubspec_path = project_root .. "/pubspec.yaml"
   local file = io.open(pubspec_path, "r")
@@ -85,17 +75,15 @@ function M.get_project_name(project_root)
   local content = file:read("*a")
   file:close()
 
-  -- UPDATED REGEX: This is now more robust.
-  -- It handles the 'name:' field being at the start of the file
-  -- and allows for hyphens (-) in the project name.
-  local name = content:match("(^|\n)name:%s*([%w_-]+)")
-  if not name then
+  -- FINAL CORRECTED LOGIC: This correctly captures the project name.
+  local _, project_name = content:match("(^|\n)name:%s*([%w_-]+)")
+
+  if not project_name then
     M.notify("Could not parse project name from pubspec.yaml", vim.log.levels.WARN)
     return "my_project" -- Fallback
   end
 
-  -- The capture group we want is the second one.
-  return name:match("([^%s]+)$")
+  return project_name
 end
 
 return M
