@@ -18,11 +18,9 @@ function M.render_template(template_content, vars)
 end
 
 function M.get_template(template_path)
-  -- This requires the new templates.lua file
   local templates = require("archflow.templates")
   local key = template_path:gsub("/", "_")
   local content = templates[key]
-
   if not content then
     M.notify("Internal template key not found: " .. key, vim.log.levels.ERROR)
     return ""
@@ -52,8 +50,9 @@ function M.find_project_root()
 end
 
 ---
---- FINAL UPDATED FUNCTION
---- Reads the pubspec.yaml file and extracts the project name.
+--- FINAL CORRECTED FUNCTION
+---
+--- This version reads the pubspec.yaml file line-by-line to reliably find the project name.
 ---
 function M.get_project_name(project_root)
   local pubspec_path = project_root .. "/pubspec.yaml"
@@ -62,18 +61,22 @@ function M.get_project_name(project_root)
     return nil
   end
 
-  local content = file:read("*a")
-  file:close()
-
-  -- SUPER-ROBUST REGEX: This handles extra spaces, quotes, and different cases.
-  local _, project_name = content:match('(^|\n)%s*[nN]ame:%s*["\']?([%w_-]+)["\']?')
-
-  if not project_name then
-    M.notify("Could not parse project name from pubspec.yaml", vim.log.levels.WARN)
-    return "my_project" -- Fallback
+  for line in file:lines() do
+    -- Check if the line contains 'name:' at the beginning, ignoring case and leading spaces
+    local value = line:match("^%s*[nN][aA][mM][eE]:%s*(.*)")
+    if value then
+      file:close()
+      -- We found the line. Now clean up the value.
+      -- Remove quotes and trim whitespace from the value.
+      value = value:gsub('["\']', ''):match("^%s*(.-)%s*$")
+      return value
+    end
   end
 
-  return project_name
+  file:close()
+  -- If the loop finishes, we didn't find it.
+  M.notify("Could not parse project name from pubspec.yaml", vim.log.levels.WARN)
+  return "my_project" -- Fallback
 end
 
 return M
