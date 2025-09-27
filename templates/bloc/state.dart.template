@@ -1,0 +1,7 @@
+part of '{{featureName}}_bloc.dart';
+
+enum {{className}}Status { initial, loading, success, error }
+
+class {{className}}State extends Equatable {
+  // ... content of the state file ...
+}
