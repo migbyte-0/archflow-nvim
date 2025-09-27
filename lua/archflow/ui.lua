@@ -20,7 +20,8 @@ function M.start_generation(config)
     local architecture = choice
 
     -- 2. Select State Management
-    vim.ui.select({ "BLoC", "Provider", "Cubit", "GetX", "Riverpod" }, { prompt = "Select state management:" }, function(choice)
+    -- UPDATED: Full list of state management options.
+    vim.ui.select({ "BLoC", "Cubit", "Provider", "Riverpod", "GetX", "MobX" }, { prompt = "Select state management:" }, function(choice)
       if not choice then return utils.notify("Cancelled.", vim.log.levels.WARN) end
       local state_management = choice:lower()
 
