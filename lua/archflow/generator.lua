@@ -37,6 +37,10 @@ function M.generate_clean_architecture(config, feature_name, state_management, c
   local project_root = utils.find_project_root()
   if not project_root then return end
 
+  -- ADDED: Get the project name for test file templates.
+  local project_name = utils.get_project_name(project_root)
+  if not project_name then return end
+
   local feature_base_path = project_root .. "/" .. config.feature_path .. "/" .. feature_name
   local test_base_path = project_root .. "/" .. config.test_path .. "/" .. feature_name
 
@@ -76,11 +80,14 @@ function M.generate_clean_architecture(config, feature_name, state_management, c
     end
   end
 
-  -- Dispatch to the correct state management handler.
+  -- UPDATED: Complete handler map.
   local handler_map = {
     bloc = handlers.create_bloc_files,
     provider = handlers.create_provider_files,
-    -- cubit, getx, riverpod would be added here
+    cubit = handlers.create_cubit_files,
+    getx = handlers.create_getx_files,
+    riverpod = handlers.create_riverpod_files,
+    mobx = handlers.create_mobx_files,
   }
 
   local handler = handler_map[state_management]
@@ -88,7 +95,8 @@ function M.generate_clean_architecture(config, feature_name, state_management, c
     local handler_params = {
       base_path = feature_base_path .. "/presentation/" .. sm_folder,
       test_base_path = test_base_path .. "/presentation/" .. sm_folder,
-      vars = { featureName = feature_name, className = class_name },
+      -- ADDED: Pass the projectName to the template variables.
+      vars = { featureName = feature_name, className = class_name, projectName = project_name },
       create_test = create_test,
       sm_folder = "presentation/" .. sm_folder,
     }
