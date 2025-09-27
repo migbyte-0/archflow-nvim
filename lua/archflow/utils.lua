@@ -96,5 +96,28 @@ function M.find_project_root()
   return vim.fn.fnamemodify(project_root, ":h")
 end
 
+--- NEW FUNCTION: Reads the pubspec.yaml file and extracts the project name.
+--- This is crucial for generating correct import paths in test files.
+---@param project_root string The absolute path to the project root.
+---@return string|nil The project name, or nil if not found.
+function M.get_project_name(project_root)
+  local pubspec_path = project_root .. "/pubspec.yaml"
+  local file = io.open(pubspec_path, "r")
+  if not file then
+    return nil
+  end
+
+  local content = file:read("*a")
+  file:close()
+
+  -- Find the 'name:' field and extract its value.
+  local name = content:match("\nname:%s*([%w_]+)")
+  if not name then
+    M.notify("Could not parse project name from pubspec.yaml", vim.log.levels.WARN)
+    return "my_project" -- Fallback
+  end
+
+  return name
+end
 
 return M
