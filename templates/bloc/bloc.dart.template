@@ -1,0 +1,13 @@
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+
+part '{{featureName}}_event.dart';
+part '{{featureName}}_state.dart';
+
+class {{className}}Bloc extends Bloc<{{className}}Event, {{className}}State> {
+  {{className}}Bloc() : super({{className}}Initial()) {
+    on<{{className}}Event>((event, emit) {
+      // TODO: implement event handler
+    });
+  }
+}
