@@ -1,0 +1,41 @@
+import 'package:flutter/material.dart';
+
+// TODO: 1. Import your ViewModel/Controller and state management package.
+// Example for BLoC/Cubit:
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import '../viewmodel/{{featureName}}_cubit.dart';
+
+class {{className}}View extends StatelessWidget {
+  const {{className}}View({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: 2. If needed, provide your state manager to the widget tree.
+    // Example for BLoC/Cubit:
+    // return BlocProvider(
+    //   create: (context) => {{className}}Cubit(),
+    //   child: _buildScaffold(),
+    // );
+
+    // If your state is provided higher up, you can just return the Scaffold.
+    return _buildScaffold();
+  }
+
+  Widget _buildScaffold() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('{{className}}'),
+      ),
+      body: const Center(
+        // TODO: 3. Use a Builder to listen to state changes from your ViewModel/Controller.
+        // Example for BLoC/Cubit:
+        // BlocBuilder<{{className}}Cubit, {{className}}State>(
+        //   builder: (context, state) {
+        //     return Text('State message: ${state.message}');
+        //   },
+        // ),
+        child: Text('Welcome to {{className}}'),
+      ),
+    );
+  }
+}
