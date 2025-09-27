@@ -1,0 +1,17 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:{{projectName}}/features/{{featureName}}/presentation/bloc/{{featureName}}_bloc.dart';
+
+void main() {
+  group('{{className}}Bloc', () {
+    test('initial state is {{className}}State', () {
+      expect({{className}}Bloc().state, const {{className}}State());
+    });
+
+    blocTest<{{className}}Bloc, {{className}}State>(
+      'emits [] when nothing is added',
+      build: () => {{className}}Bloc(),
+      expect: () => const <{{className}}State>[],
+    );
+  });
+}
