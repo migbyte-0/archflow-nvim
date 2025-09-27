@@ -1,0 +1,18 @@
+part of '{{featureName}}_cubit.dart';
+
+class {{className}}State extends Equatable {
+  final String message;
+
+  const {{className}}State({this.message = 'Initial Message'});
+
+  @override
+  List<Object> get props => [message];
+
+  {{className}}State copyWith({
+    String? message,
+  }) {
+    return {{className}}State(
+      message: message ?? this.message,
+    );
+  }
+}
