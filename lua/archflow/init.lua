@@ -1,5 +1,3 @@
---------------------------------------------------------------------------------
--- File: archflow.lua
 -- A single Lua module that merges:
 --   1) MVC / MVVM flows with multiple state management (Provider, BLoC, Riverpod, GetX, Cubit)
 --   2) Clean Architecture flow, also supporting all those state management choices
@@ -35,9 +33,7 @@ end
 
 --------------------------------------------------------------------------------
 -- 2. STATE-MANAGEMENT-SPECIFIC HELPERS (BOILERPLATE)
---    We create separate functions to generate code for each approach
---    (Provider, BLoC, Cubit, Riverpod, GetX).
---    We can reuse them in both MVC/MVVM and Clean Architecture contexts.
+--    These are unchanged.
 --------------------------------------------------------------------------------
 
 -- Provider
@@ -222,10 +218,8 @@ end
 
 --------------------------------------------------------------------------------
 -- 3. MVC / MVVM GENERATION
+--    This section is unchanged.
 --------------------------------------------------------------------------------
-
---- For MVC or MVVM, the "boilerplate" mostly resides in model/view + (controller or viewmodel).
---- Reuses the above state-management helpers for the "controller" portion, if needed (like BLoC).
 local function generate_mvc_mvvm_files(base_path, feature_name, architecture, state_management)
   local feature_path = base_path .. "/lib/features/" .. feature_name
   create_directory(feature_path)
@@ -243,12 +237,10 @@ local function generate_mvc_mvvm_files(base_path, feature_name, architecture, st
     return
   end
 
-  -- Create subdirectories
   for _, dir in ipairs(subdirs) do
     create_directory(feature_path .. "/" .. dir)
   end
 
-  -- Always create a model file
   create_file(feature_path .. "/model/" .. feature_name .. "_model.dart",
 [[
 class ]] .. class_name .. [[Model {
@@ -257,7 +249,6 @@ class ]] .. class_name .. [[Model {
 ]]
   )
 
-  -- Always create a view file
   create_file(feature_path .. "/view/" .. feature_name .. "_view.dart",
 [[
 import 'package:flutter/material.dart';
@@ -280,7 +271,6 @@ class ]] .. class_name .. [[View extends StatelessWidget {
 ]]
   )
 
-  -- If MVC, we have "controller" subfolder => generate the chosen state mgmt there
   if architecture == "mvc" then
     local controller_path = feature_path .. "/controller"
     if state_management == "provider" then
@@ -296,11 +286,8 @@ class ]] .. class_name .. [[View extends StatelessWidget {
     end
   end
 
-  -- If MVVM, we have "viewmodel" subfolder => minimal example
   if architecture == "mvvm" then
     local viewmodel_path = feature_path .. "/viewmodel"
-    -- For demonstration, we just create a single file.
-    -- You could likewise add different state mgmt, but let's keep it minimal:
     create_file(viewmodel_path .. "/" .. feature_name .. "_viewmodel.dart",
 [[
 class ]] .. class_name .. [[ViewModel {
@@ -308,9 +295,6 @@ class ]] .. class_name .. [[ViewModel {
 }
 ]]
     )
-    -- If you want to also incorporate state mgmt code in MVVM style,
-    -- you'd similarly call the relevant creation function here
-    -- (Provider, BLoC, etc.) but storing in "viewmodel" folder or another approach.
   end
 
   print("Feature " .. feature_name .. " generated with " .. architecture
@@ -321,28 +305,7 @@ end
 -- 4. CLEAN ARCHITECTURE GENERATION
 --------------------------------------------------------------------------------
 
---- We'll create subfolders for Clean Architecture:
---- data/datasources, data/models, data/repositories,
---- domain/entities, domain/usecases, domain/repository_impl,
---- presentation/screens, presentation/widgets,
---- + a subfolder for the chosen state management approach:
----   - "blocs" if user picks bloc
----   - "cubits" if user picks cubit
----   - "providers" if user picks provider
----   - "riverpods" if user picks riverpod
----   - "getx" if user picks getx
-local function create_export_files(feature_base_path, export_files_content)
-  for main_dir, files in pairs(export_files_content) do
-    if #files > 0 then
-      local export_file_path = feature_base_path .. "/" .. main_dir .. "/" .. main_dir .. "_exports.dart"
-      local export_file_content = ""
-      for _, rel_path in ipairs(files) do
-        export_file_content = export_file_content .. "export '" .. rel_path .. "';\n"
-      end
-      create_file(export_file_path, export_file_content)
-    end
-  end
-end
+-- ❌ REMOVED: The old `create_export_files` function is no longer needed.
 
 local function generate_clean_architecture_files(base_path, feature_name, state_management)
   local feature_base_path = base_path
@@ -359,82 +322,79 @@ local function generate_clean_architecture_files(base_path, feature_name, state_
     "data/models",
     "data/repositories",
     "domain/entities",
+    "domain/repositories", -- Changed from repository_impl
     "domain/usecases",
-    "domain/repository_impl",
     "presentation/screens",
     "presentation/widgets",
   }
 
-  -- Decide the subfolder name for the chosen state management
   local folder_map = {
-    bloc = "blocs",
-    cubit = "cubits",
-    provider = "providers",
-    riverpod = "riverpods",
-    getx = "getx",
+    bloc = "bloc",
+    cubit = "cubit",
+    provider = "provider",
+    riverpod = "provider", -- Riverpod often uses 'provider' folder
+    getx = "controller",
   }
-  local sm_folder = folder_map[state_management]
-  if not sm_folder then
-    sm_folder = "blocs"  -- fallback or handle error
-  end
+  local sm_folder = folder_map[state_management] or "state"
   table.insert(directories, "presentation/" .. sm_folder)
 
-  local export_files_content = {
-    data = {},
-    domain = {},
-    presentation = {},
-  }
+  -- ✅ UPDATED: A single list to hold all export paths.
+  local all_export_paths = {}
 
   for _, dir in ipairs(directories) do
     local dir_path = feature_base_path .. "/" .. dir
     create_directory(dir_path)
 
-    -- If it's the dynamic subfolder for state management:
-    if dir:match(sm_folder) then
+    -- Handle the state management folder
+    if dir == "presentation/" .. sm_folder then
       if state_management == "bloc" then
         create_bloc_files(dir_path, feature_name, class_name)
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_bloc.dart")
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_event.dart")
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_state.dart")
-
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_bloc.dart")
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_event.dart")
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_state.dart")
       elseif state_management == "cubit" then
         create_cubit_files(dir_path, feature_name, class_name)
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_cubit.dart")
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_state.dart")
-
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_cubit.dart")
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_state.dart")
       elseif state_management == "provider" then
         create_provider_file(dir_path, feature_name, class_name)
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_provider.dart")
-
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_provider.dart")
       elseif state_management == "riverpod" then
         create_riverpod_file(dir_path, feature_name, class_name)
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_provider.dart")
-
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_provider.dart")
       elseif state_management == "getx" then
         create_getx_file(dir_path, feature_name, class_name)
-        table.insert(export_files_content.presentation, sm_folder .. "/" .. feature_name .. "_controller.dart")
+        table.insert(all_export_paths, "presentation/" .. sm_folder .. "/" .. feature_name .. "_controller.dart")
       end
-
     else
-      -- Create a placeholder .dart file
-      local file_base_name = feature_name .. "_" .. dir:match("[^/]+$")
-      local file_path = dir_path .. "/" .. file_base_name .. ".dart"
-      local file_content = "// Placeholder for " .. file_base_name .. ".dart\n"
-      create_file(file_path, file_content)
-
-      local top_dir = dir:match("^[^/]+") -- 'data', 'domain', or 'presentation'
-      local relative_path = "../" .. dir:gsub(".*/", "") .. "/" .. file_base_name .. ".dart"
-      if export_files_content[top_dir] then
-        table.insert(export_files_content[top_dir], relative_path)
+      -- Create a placeholder .dart file for other directories
+      local simple_dir_name = dir:match("[^/]+$")
+      local file_base_name = feature_name .. "_" .. simple_dir_name
+      if simple_dir_name == "repositories" and dir:match("^domain") then
+        file_base_name = feature_name .. "_repository"
+      elseif simple_dir_name == "repositories" and dir:match("^data") then
+        file_base_name = feature_name .. "_repository_impl"
       end
+
+      local file_path = dir_path .. "/" .. file_base_name .. ".dart"
+      create_file(file_path, "// Placeholder for " .. file_base_name .. ".dart\n")
+
+      -- ✅ UPDATED: Add the relative path to our single export list.
+      table.insert(all_export_paths, dir .. "/" .. file_base_name .. ".dart")
     end
   end
 
-  -- create export files
-  create_export_files(feature_base_path, export_files_content)
+  -- ✅ UPDATED: Create a single, consolidated export file for the feature.
+  local export_file_path = feature_base_path .. "/" .. feature_name .. "_exports.dart"
+  local export_file_content = ""
+  for _, path in ipairs(all_export_paths) do
+    export_file_content = export_file_content .. "export '" .. path .. "';\n"
+  end
+  create_file(export_file_path, export_file_content)
 
   print("Feature " .. feature_name .. " generated under Clean Architecture + " .. state_management)
 end
+
 
 --------------------------------------------------------------------------------
 -- 5. MAIN ENTRY FUNCTION
