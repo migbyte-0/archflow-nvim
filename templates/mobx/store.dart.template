@@ -1,0 +1,15 @@
+import 'package:mobx/mobx.dart';
+
+part '{{featureName}}_store.g.dart';
+
+class {{className}}Store = _{{className}}StoreBase with _${{className}}Store;
+
+abstract class _{{className}}StoreBase with Store {
+  @observable
+  String message = 'Initial Message';
+
+  @action
+  void updateMessage(String newMessage) {
+    message = newMessage;
+  }
+}
