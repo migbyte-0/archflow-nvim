@@ -1,0 +1,33 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:{{projectName}}/features/{{featureName}}/presentation/provider/{{featureName}}_provider.dart';
+
+void main() {
+  group('{{className}}Notifier', () {
+    test('initial state is correct', () {
+      // Arrange
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // Act
+      final state = container.read({{featureName}}Provider);
+
+      // Assert
+      expect(state.message, 'Initial Message');
+    });
+
+    test('updateMessage changes the state message', () {
+      // Arrange
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final notifier = container.read({{featureName}}Provider.notifier);
+
+      // Act
+      notifier.updateMessage('New Message');
+
+      // Assert
+      final newState = container.read({{featureName}}Provider);
+      expect(newState.message, 'New Message');
+    });
+  });
+}
