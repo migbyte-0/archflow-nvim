@@ -1,0 +1,10 @@
+part of '{{featureName}}_bloc.dart';
+
+abstract class {{className}}Event extends Equatable {
+  const {{className}}Event();
+
+  @override
+  List<Object> get props => [];
+}
+
+class {{className}}Started extends {{className}}Event {}
