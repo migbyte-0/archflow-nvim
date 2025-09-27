@@ -1,0 +1,21 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// 1. Define the State (can be a simple type or a class)
+class {{className}}State {
+  final String message;
+  {{className}}State({this.message = 'Initial Message'});
+}
+
+// 2. Create the Notifier
+class {{className}}Notifier extends StateNotifier<{{className}}State> {
+  {{className}}Notifier() : super({{className}}State());
+
+  void updateMessage(String newMessage) {
+    state = {{className}}State(message: newMessage);
+  }
+}
+
+// 3. Create the Provider
+final {{featureName}}Provider = StateNotifierProvider<{{className}}Notifier, {{className}}State>((ref) {
+  return {{className}}Notifier();
+});
