@@ -21,26 +21,43 @@ function M.get_plugin_path()
   return debug.getinfo(2, "S").source:match("@?(.*[/\\])") .. "../"
 end
 
+---
+--- REPLACED AND IMPROVED FUNCTION
+---
+---Reads the content of a template file using Neovim's native API.
+--- This is more robust than the standard Lua io library.
+---
 function M.read_template(config, template_path)
   local path_to_check
+
+  -- Function to read a file using vim's API
+  local function read_with_vim_api(path)
+    if vim.fn.filereadable(path) == 1 then
+      local lines = vim.fn.readfile(path)
+      return table.concat(lines, "\n")
+    end
+    return nil
+  end
+
+  -- 1. Check for user-defined custom templates first.
   if config.custom_template_path then
     path_to_check = config.custom_template_path .. "/" .. template_path .. ".dart.template"
-    local file = io.open(path_to_check, "r")
-    if file then
-      local content = file:read("*a")
-      file:close()
+    local content = read_with_vim_api(path_to_check)
+    if content then
       return content
     end
   end
+
+  -- 2. Fallback to the plugin's default templates.
   path_to_check = M.get_plugin_path() .. "templates/" .. template_path .. ".dart.template"
-  local file = io.open(path_to_check, "r")
-  if not file then
-    M.notify("Template not found: " .. template_path, vim.log.levels.ERROR)
-    return ""
+  local content = read_with_vim_api(path_to_check)
+  if content then
+    return content
   end
-  local content = file:read("*a")
-  file:close()
-  return content
+
+  -- If neither path worked, notify the user.
+  M.notify("Template not found or not readable: " .. template_path, vim.log.levels.ERROR)
+  return ""
 end
 
 function M.find_project_root()
@@ -64,25 +81,19 @@ function M.find_project_root()
   return nil
 end
 
---- Reads the pubspec.yaml file and extracts the project name.
 function M.get_project_name(project_root)
   local pubspec_path = project_root .. "/pubspec.yaml"
   local file = io.open(pubspec_path, "r")
   if not file then
     return nil
   end
-
   local content = file:read("*a")
   file:close()
-
-  -- FINAL CORRECTED LOGIC: This correctly captures the project name.
   local _, project_name = content:match("(^|\n)name:%s*([%w_-]+)")
-
   if not project_name then
     M.notify("Could not parse project name from pubspec.yaml", vim.log.levels.WARN)
     return "my_project" -- Fallback
   end
-
   return project_name
 end
 
