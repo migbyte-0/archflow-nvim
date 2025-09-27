@@ -2,9 +2,6 @@
 
 local M = {}
 
--- This line is new: it loads the internal templates module.
-local templates = require("archflow.templates")
-
 function M.notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO, { title = "ArchFlow" })
 end
@@ -20,13 +17,9 @@ function M.render_template(template_content, vars)
   end)
 end
 
----
---- REPLACED FUNCTION: This no longer reads from disk.
----
----Gets a template string from the internal templates.lua module.
----
 function M.get_template(template_path)
-  -- Converts a path like "cubit/cubit_test" into a key like "cubit_cubit_test"
+  -- This requires the new templates.lua file
+  local templates = require("archflow.templates")
   local key = template_path:gsub("/", "_")
   local content = templates[key]
 
@@ -37,7 +30,6 @@ function M.get_template(template_path)
   return content
 end
 
--- The rest of the file is the same...
 function M.find_project_root()
   local current_buf_path = vim.api.nvim_buf_get_name(0)
   if current_buf_path == "" or current_buf_path == nil then
@@ -59,19 +51,28 @@ function M.find_project_root()
   return nil
 end
 
+---
+--- FINAL UPDATED FUNCTION
+--- Reads the pubspec.yaml file and extracts the project name.
+---
 function M.get_project_name(project_root)
   local pubspec_path = project_root .. "/pubspec.yaml"
   local file = io.open(pubspec_path, "r")
   if not file then
     return nil
   end
+
   local content = file:read("*a")
   file:close()
-  local _, project_name = content:match("(^|\n)name:%s*([%w_-]+)")
+
+  -- SUPER-ROBUST REGEX: This handles extra spaces, quotes, and different cases.
+  local _, project_name = content:match('(^|\n)%s*[nN]ame:%s*["\']?([%w_-]+)["\']?')
+
   if not project_name then
     M.notify("Could not parse project name from pubspec.yaml", vim.log.levels.WARN)
-    return "my_project"
+    return "my_project" -- Fallback
   end
+
   return project_name
 end
 
