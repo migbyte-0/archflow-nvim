@@ -26,6 +26,7 @@ M.options = {
     getx = "controller",
     provider = "provider",
     riverpod = "provider",
+    mobx = "store",         
   },
 
   --- Path to a directory containing the user's custom templates.
