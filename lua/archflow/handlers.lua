@@ -25,17 +25,7 @@ end
 
 ---A generic function to create a source file and an optional test file from templates.
 ---@param config table The plugin's configuration.
----@param file_creation_params table Parameters for file creation:
----  {
----    base_path: string,         -- e.g., "/path/to/project/lib/features/my_feature"
----    test_base_path: string,    -- e.g., "/path/to/project/test/features/my_feature"
----    template_vars: table,      -- { featureName, className }
----    create_test: boolean,      -- Whether to create a test file
----    source_template: string,   -- e.g., "bloc/bloc"
----    test_template: string,     -- e.g., "bloc/bloc_test"
----    source_suffix: string,     -- e.g., "_bloc.dart"
----    test_suffix: string,       -- e.g., "_bloc_test.dart"
----  }
+---@param p table Parameters for file creation.
 local function create_source_and_test(config, p)
   -- Create source file
   local source_content = utils.read_template(config, p.source_template)
@@ -93,7 +83,65 @@ function M.create_provider_files(config, p)
   return { p.sm_folder .. "/" .. p.vars.featureName .. "_provider.dart" }
 end
 
--- Handlers for Cubit, GetX, and Riverpod would follow the exact same pattern.
--- For brevity, they are omitted but would be implemented similarly to create_provider_files.
+--- ADDED: Handler for Cubit file generation.
+---@param config table The plugin's configuration.
+---@param p table The generation parameters.
+function M.create_cubit_files(config, p)
+  -- Cubit file
+  create_source_and_test(config, {
+    base_path = p.base_path, test_base_path = p.test_base_path,
+    template_vars = p.vars, create_test = p.create_test,
+    source_template = "cubit/cubit", test_template = "cubit/cubit_test",
+    source_suffix = "_cubit.dart", test_suffix = "_cubit_test.dart",
+  })
+
+  -- State file (no test)
+  local state_content = utils.read_template(config, "cubit/state")
+  create_file(p.base_path .. "/" .. p.vars.featureName .. "_state.dart", utils.render_template(state_content, p.vars))
+
+  return {
+    p.sm_folder .. "/" .. p.vars.featureName .. "_cubit.dart",
+    p.sm_folder .. "/" .. p.vars.featureName .. "_state.dart",
+  }
+end
+
+--- ADDED: Handler for GetX file generation.
+---@param config table The plugin's configuration.
+---@param p table The generation parameters.
+function M.create_getx_files(config, p)
+  create_source_and_test(config, {
+    base_path = p.base_path, test_base_path = p.test_base_path,
+    template_vars = p.vars, create_test = p.create_test,
+    source_template = "getx/controller", test_template = "getx/controller_test",
+    source_suffix = "_controller.dart", test_suffix = "_controller_test.dart",
+  })
+  return { p.sm_folder .. "/" .. p.vars.featureName .. "_controller.dart" }
+end
+
+--- ADDED: Handler for Riverpod file generation.
+---@param config table The plugin's configuration.
+---@param p table The generation parameters.
+function M.create_riverpod_files(config, p)
+  create_source_and_test(config, {
+    base_path = p.base_path, test_base_path = p.test_base_path,
+    template_vars = p.vars, create_test = p.create_test,
+    source_template = "riverpod/provider", test_template = "riverpod/provider_test",
+    source_suffix = "_provider.dart", test_suffix = "_provider_test.dart",
+  })
+  return { p.sm_folder .. "/" .. p.vars.featureName .. "_provider.dart" }
+end
+
+--- ADDED: Handler for MobX file generation.
+---@param config table The plugin's configuration.
+---@param p table The generation parameters.
+function M.create_mobx_files(config, p)
+  create_source_and_test(config, {
+    base_path = p.base_path, test_base_path = p.test_base_path,
+    template_vars = p.vars, create_test = p.create_test,
+    source_template = "mobx/store", test_template = "mobx/store_test",
+    source_suffix = "_store.dart", test_suffix = "_store_test.dart",
+  })
+  return { p.sm_folder .. "/" .. p.vars.featureName .. "_store.dart" }
+end
 
 return M
