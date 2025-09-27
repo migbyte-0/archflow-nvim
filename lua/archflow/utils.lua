@@ -79,24 +79,34 @@ end
 ---@return string|nil The path to the project root, or nil if not found.
 function M.find_project_root()
   local current_buf_path = vim.api.nvim_buf_get_name(0)
-  if current_buf_path == "" then
+  if current_buf_path == "" or current_buf_path == nil then
     M.notify("Cannot find project root: current buffer has no file path.", vim.log.levels.ERROR)
     return nil
   end
 
-  local start_path = vim.fn.fnamemodify(current_buf_path, ":h")
+  local current_dir = vim.fn.fnamemodify(current_buf_path, ":h")
   local root_marker = "pubspec.yaml"
-  local project_root = vim.fn.finddir(root_marker, start_path .. ";")
 
-  if project_root == "" then
-    M.notify("Could not find 'pubspec.yaml'. Are you in a Flutter project?", vim.log.levels.ERROR)
-    return nil
+  -- Manually loop upwards through parent directories until we find the marker or hit the root.
+  while current_dir ~= "" and current_dir ~= "/" and current_dir ~= vim.fn.fnamemodify(current_dir, ":h") do
+    local check_path = current_dir .. "/" .. root_marker
+    -- io.open is a reliable way to check if a file exists and is readable.
+    local file = io.open(check_path, "r")
+    if file then
+      file:close()
+      -- Success! We found the directory containing pubspec.yaml.
+      return current_dir
+    end
+    -- If not found, move to the parent directory for the next check.
+    current_dir = vim.fn.fnamemodify(current_dir, ":h")
   end
 
-  return vim.fn.fnamemodify(project_root, ":h")
+  -- If the loop finishes, the file was not found in any parent directory.
+  M.notify("Could not find 'pubspec.yaml'. Are you in a Flutter project?", vim.log.levels.ERROR)
+  return nil
 end
 
---- NEW FUNCTION: Reads the pubspec.yaml file and extracts the project name.
+--- Reads the pubspec.yaml file and extracts the project name.
 --- This is crucial for generating correct import paths in test files.
 ---@param project_root string The absolute path to the project root.
 ---@return string|nil The project name, or nil if not found.
