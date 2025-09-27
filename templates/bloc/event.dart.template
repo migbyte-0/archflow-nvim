@@ -7,4 +7,6 @@ abstract class {{className}}Event extends Equatable {
   List<Object> get props => [];
 }
 
-class {{className}}Started extends {{className}}Event {}
+class Custom{{className}}Event extends {{className}}Event {
+  const Custom{{className}}Event();
+}
