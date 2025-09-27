@@ -1,0 +1,8 @@
+class {{className}}Model {
+  // TODO: Add your model properties and logic here.
+  // Example:
+  // final String id;
+  // final String title;
+
+  // const {{className}}Model({required this.id, required this.title});
+}
