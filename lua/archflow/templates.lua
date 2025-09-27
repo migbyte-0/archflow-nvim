@@ -3,6 +3,69 @@
 -- This file holds all template strings internally to avoid file system issues.
 local M = {}
 
+--------------------------------------------------------------------------------
+-- NEW TEMPLATES FOR MVC/MVVM
+--------------------------------------------------------------------------------
+
+M.shared_model = [[
+class {{className}}Model {
+  // TODO: Add your model properties and logic here.
+  // Example:
+  // final String id;
+  // final String title;
+
+  // const {{className}}Model({required this.id, required this.title});
+}
+]]
+
+M.shared_view = [[
+import 'package:flutter/material.dart';
+
+// TODO: 1. Import your ViewModel/Controller and state management package.
+// Example for BLoC/Cubit:
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import '../viewmodel/{{featureName}}_cubit.dart';
+
+class {{className}}View extends StatelessWidget {
+  const {{className}}View({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: 2. If needed, provide your state manager to the widget tree.
+    // Example for BLoC/Cubit:
+    // return BlocProvider(
+    //   create: (context) => {{className}}Cubit(),
+    //   child: _buildScaffold(),
+    // );
+
+    // If your state is provided higher up, you can just return the Scaffold.
+    return _buildScaffold();
+  }
+
+  Widget _buildScaffold() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('{{className}}'),
+      ),
+      body: const Center(
+        // TODO: 3. Use a Builder to listen to state changes from your ViewModel/Controller.
+        // Example for BLoC/Cubit:
+        // BlocBuilder<{{className}}Cubit, {{className}}State>(
+        //   builder: (context, state) {
+        //     return Text('State message: ${state.message}');
+        //   },
+        // ),
+        child: Text('Welcome to {{className}}'),
+      ),
+    );
+  }
+}
+]]
+
+--------------------------------------------------------------------------------
+-- EXISTING STATE MANAGEMENT TEMPLATES
+--------------------------------------------------------------------------------
+
 M.bloc_bloc = [[
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -24,6 +87,9 @@ class {{className}}Bloc extends Bloc<{{className}}Event, {{className}}State> {
 }
 ]]
 
+-- ... (all your other existing templates for bloc, cubit, provider, etc., go here) ...
+-- (The rest of the file content is omitted for brevity but should be kept as is)
+
 M.bloc_event = [[
 part of '{{featureName}}_bloc.dart';
 
@@ -44,7 +110,7 @@ part of '{{featureName}}_bloc.dart';
 
 class {{className}}State extends Equatable {
   const {{className}}State();
-  
+
   @override
   List<Object> get props => [];
 }
@@ -210,7 +276,7 @@ void main() {
 
     test('updateMessage changes the state message', () {
       final container = ProviderContainer();
-      addTearDown(container.dispose);
+      addT-down(container.dispose);
       final notifier = container.read({{featureName}}Provider.notifier);
       notifier.updateMessage('New Message');
       final newState = container.read({{featureName}}Provider);
@@ -298,5 +364,6 @@ void main() {
   });
 }
 ]]
+
 
 return M
