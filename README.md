@@ -2,7 +2,7 @@
 <div align="center">
   <img src="https://github.com/migbyte-0/archflow-nvim/blob/main/migbye_logo.svg" alt="Done by Migbyte" width="250" />
   <p style="font-size: 20px; font-weight: bold;">
-    Done by <span style="color: lightgreen;">Migbyte</span> Team
+    Done by <span style="color: lightgreen;">Migbyte</span> 
   </p>
 </div>
 
